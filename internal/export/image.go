@@ -85,16 +85,10 @@ func (e *ImageExporter) ToPNG(outputPath string) error {
 			continue
 		}
 
-		// Parse the rendered output to extract label and value
-		// Format is: "Label: Value"
-		parts := strings.SplitN(rendered, e.theme.Layout.Separator, 2)
-		if len(parts) != 2 {
+		label, value, ok := splitRendered(rendered, e.theme.Layout.Separator)
+		if !ok {
 			continue
 		}
-
-		// Strip ANSI codes and styling (modules return styled strings for TUI)
-		label := stripANSI(parts[0])
-		value := stripANSI(parts[1])
 
 		// Draw label
 		dc.SetColor(parseHexColor(e.theme.Colors.Label))

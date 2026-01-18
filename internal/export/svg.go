@@ -78,7 +78,11 @@ type svgField struct {
 
 func (e *ImageExporter) prepareSVGData() map[string]interface{} {
 	ascii := e.theme.ASCII
-	asciiLines := strings.Split(ascii, "\n")
+	rawAsciiLines := strings.Split(ascii, "\n")
+	asciiLines := make([]string, 0, len(rawAsciiLines))
+	for _, line := range rawAsciiLines {
+		asciiLines = append(asciiLines, sanitizeText(stripANSI(line)))
+	}
 
 	// Get module data
 	fields := []svgField{}
@@ -91,13 +95,13 @@ func (e *ImageExporter) prepareSVGData() map[string]interface{} {
 			continue
 		}
 
-		parts := strings.SplitN(rendered, e.theme.Layout.Separator, 2)
-		if len(parts) != 2 {
+		label, value, ok := splitRendered(rendered, e.theme.Layout.Separator)
+		if !ok {
 			continue
 		}
 
-		label := stripANSI(parts[0])
-		value := stripANSI(parts[1])
+		label = sanitizeText(label)
+		value = sanitizeText(value)
 
 		// Estimate label width for SVG positioning (rough approximation)
 		labelWidth := len(label+e.theme.Layout.Separator) * 8
