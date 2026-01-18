@@ -59,6 +59,20 @@ See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 
 ## Installation
 
+### Release Binaries
+
+Download from GitHub Releases:
+
+https://github.com/howieduhzit/bubblefetch/releases/latest
+
+### Arch Linux (AUR)
+
+```bash
+yay -S bubblefetch-git
+```
+
+AUR package: https://aur.archlinux.org/packages/bubblefetch-git
+
 ### Quick Install
 
 ```bash
@@ -481,7 +495,7 @@ bubblefetch/
 │       ├── bubblefetch.html
 │       └── bubblefetch.svg
 ├── packaging/                # Packaging assets
-│   └── aur/                   # AUR packages
+│   └── aur/                   # AUR package (-git)
 ├── site/                     # GitHub Pages site
 │   ├── index.html
 │   ├── site.webmanifest
