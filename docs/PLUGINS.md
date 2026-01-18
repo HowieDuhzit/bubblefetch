@@ -74,8 +74,36 @@ Run bubblefetch and your plugin will appear in the TUI!
 ## Plugin Registry
 
 The GitHub Pages site reads `plugins/manifest.json` to list plugins in the
-browser. Add new plugins by updating the manifest with a name, description,
-and download/source URLs.
+browser. Downloads should point to GitHub Release assets so the repo does not
+store binary `.so` files.
+
+Manifest example:
+
+```json
+{
+  "id": "hello",
+  "name": "Hello",
+  "version": "0.1.0",
+  "downloads": [
+    {
+      "label": "Linux (amd64)",
+      "url": "https://github.com/howieduhzit/bubblefetch/releases/download/plugins-v0.1.0/hello_linux_amd64.so"
+    }
+  ],
+  "source": "https://github.com/howieduhzit/bubblefetch/blob/main/plugins/examples/hello.go"
+}
+```
+
+## Building a release asset
+
+Go plugins are OS/arch specific. Build on the target platform and upload the
+resulting `.so` to a GitHub Release.
+
+```bash
+scripts/build-plugin.sh hello plugins/examples/hello.go
+```
+
+Then update `plugins/manifest.json` with the release asset URL.
 
 ## Plugin API
 

@@ -200,7 +200,7 @@ modules:
 - See `docs/PLUGINS.md` for complete guide
 - Examples in `plugins/examples/`
 - Platform support: Linux, macOS, FreeBSD (not Windows)
-- Browse available plugins on the landing page plugin store
+- Browse available plugins on the landing page plugin store (downloads via releases)
 
 Quick example:
 ```go

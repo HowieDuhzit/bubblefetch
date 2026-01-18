@@ -1,0 +1,5 @@
+./battery.go
+./collector.go
+./gpu.go
+./network.go
+./publicip.go

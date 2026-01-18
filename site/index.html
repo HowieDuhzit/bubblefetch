@@ -493,7 +493,7 @@
         <h2>Plugin store</h2>
         <p>
           Browse community plugins sourced from the repo manifest. Downloads are
-          platform-specific Go plugins (`.so`).
+          platform-specific Go plugins (`.so`) served from GitHub Releases.
         </p>
         <div class="plugin-grid" id="plugin-grid"></div>
         <p class="mono" id="plugin-status" style="margin-top: 16px">
@@ -559,12 +559,14 @@
           const buttons = document.createElement("div");
           buttons.className = "button-row";
 
-          if (plugin.download) {
-            const download = document.createElement("a");
-            download.className = "button primary";
-            download.href = plugin.download;
-            download.textContent = "Download";
-            buttons.appendChild(download);
+          if (plugin.downloads && plugin.downloads.length) {
+            plugin.downloads.forEach((item, index) => {
+              const download = document.createElement("a");
+              download.className = `button${index === 0 ? " primary" : ""}`;
+              download.href = item.url;
+              download.textContent = item.label || "Download";
+              buttons.appendChild(download);
+            });
           }
 
           if (plugin.source) {
