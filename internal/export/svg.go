@@ -3,9 +3,9 @@ package export
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"os"
 	"strings"
+	"text/template"
 )
 
 const svgTemplate = `<?xml version="1.0" encoding="UTF-8"?>
