@@ -28,7 +28,7 @@ const svgTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 
     <!-- ASCII Art -->
     {{range $i, $line := .ASCIILines}}
-    <text class="ascii" x="40" y="{{add 80 (mul $i 20)}}">{{escape $line}}</text>
+    <text class="ascii" x="40" y="{{add 80 (mul $i 20)}}" xml:space="preserve">{{escape $line}}</text>
     {{end}}
 
     <!-- System Info -->
