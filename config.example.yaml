@@ -1,0 +1,35 @@
+# bubblefetch configuration file
+# Copy this to ~/.config/bubblefetch/config.yaml
+
+# Theme to use (default, minimal, dracula, nord, or custom theme name)
+theme: default
+
+# Remote system to fetch info from (leave empty for local)
+# Example: user@hostname or IP address
+remote: ""
+
+# Modules to display (in order)
+# Available modules: os, kernel, hostname, uptime, cpu, gpu, memory, disk,
+#                    shell, terminal, de, wm, network, localip, battery
+modules:
+  - os
+  - kernel
+  - hostname
+  - uptime
+  - cpu
+  - gpu
+  - memory
+  - disk
+  - shell
+  - terminal
+  - de
+  - wm
+  - localip
+  - battery
+
+# SSH configuration for remote systems
+ssh:
+  user: ""           # SSH username (defaults to current user)
+  port: 22           # SSH port
+  key_path: ""       # Path to SSH private key (defaults to ~/.ssh/id_rsa)
+  known_hosts_path: ""  # Path to known_hosts file

@@ -1,0 +1,20 @@
+{
+  "name": "minimal",
+  "colors": {
+    "primary": "#61afef",
+    "secondary": "#c678dd",
+    "accent": "#e06c75",
+    "label": "#e5c07b",
+    "value": "#98c379",
+    "border": "#5c6370",
+    "background": "#282c34"
+  },
+  "ascii": "",
+  "layout": {
+    "show_ascii": false,
+    "ascii_width": 0,
+    "separator": " → ",
+    "padding": 1,
+    "border_style": "none"
+  }
+}

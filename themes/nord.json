@@ -1,0 +1,20 @@
+{
+  "name": "nord",
+  "colors": {
+    "primary": "#88c0d0",
+    "secondary": "#81a1c1",
+    "accent": "#bf616a",
+    "label": "#ebcb8b",
+    "value": "#a3be8c",
+    "border": "#4c566a",
+    "background": "#2e3440"
+  },
+  "ascii": "auto",
+  "layout": {
+    "show_ascii": true,
+    "ascii_width": 20,
+    "separator": " | ",
+    "padding": 2,
+    "border_style": "thick"
+  }
+}

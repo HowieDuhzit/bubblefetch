@@ -1,0 +1,20 @@
+{
+  "name": "monokai",
+  "colors": {
+    "primary": "#66d9ef",
+    "secondary": "#ae81ff",
+    "accent": "#f92672",
+    "label": "#e6db74",
+    "value": "#a6e22e",
+    "border": "#75715e",
+    "background": "#272822"
+  },
+  "ascii": "auto",
+  "layout": {
+    "show_ascii": true,
+    "ascii_width": 30,
+    "separator": ": ",
+    "padding": 2,
+    "border_style": "thick"
+  }
+}

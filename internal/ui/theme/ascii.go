@@ -1,0 +1,253 @@
+package theme
+
+import (
+	"os"
+	"strings"
+	"sync"
+)
+
+var (
+	detectedOSCache     string
+	detectedOSCacheOnce sync.Once
+)
+
+// ASCII art for various operating systems and distributions
+const (
+	DefaultASCII = `
+    ╭─────────╮
+    │  ◠ ◡ ◠  │
+    │         │
+    ╰─────────╯`
+
+	ArchASCII = `
+       /\
+      /  \
+     /\   \
+    /      \
+   /   ,,   \
+  /   |  |  -\
+ /_-''    ''-_\`
+
+	UbuntuASCII = `
+         _
+     ---(_)
+ _/  ---  \
+(_) |   |
+  \  --- _/
+     ---(_)`
+
+	DebianASCII = `
+   _____
+  /  __ \
+ |  /    |
+ |  \___-
+ -_
+   --_`
+
+	FedoraASCII = `
+       _____
+      /   __)\\
+      |  /  \\ \\
+   ___|  |__/ /
+  / (_    _)_/
+ / /  |  |
+ \ \__/  |
+  \(_____/`
+
+	MintASCII = `
+  ___________
+ |_          \\
+   | | | | | |
+   | | | | | |
+   |_|_|_|_|_|`
+
+	ManjaroASCII = `
+ ██████████████████
+ ██████████████████
+ ██████████████████
+ ██████████████████
+ ████████
+ ████████`
+
+	PopOSASCII = `
+ ______
+ \\   _ \\        __
+  \\ \\ \\ \\      / /
+   \\ \\_\\ \\    / /
+    \\  ___\\  /_/
+     \\ \\    _
+    __\\_\\__(_)_
+   (___________))`
+
+	GentooASCII = `
+  _-----_
+ (       \\
+ \\    0   \\
+  \\        )
+  /      _/
+ (     _-
+ \\____-`
+
+	OpenSUSEASCII = `
+    _______
+____/   ___/_
+     / / / /
+    / /_/ /
+   /____/`
+
+	KaliASCII = `
+ ..............
+ ..,;:ccc,.
+  ......''';lxO.
+.....''''..,:ld;
+       .';;;:::;,,.x,
+..'''.            ,cXX;
+.,;:c:,;::,,..,;,.  ,;xl;
+.;,..';.  ,,  .,;::,:;,,.
+';'';,,,.`
+
+	VoidASCII = `
+      _______
+     /  _ \  \\
+    | (..) |  |
+     \\____/  /
+      '----'`
+
+	NixOSASCII = `
+   \\\\  \\\\ //
+  ==\\\\__\\\\/ //
+    //   \\\\//
+ ==//     //==
+  //\\\\___//
+ // /\\\\  \\\\==
+   // \\\\  \\\\`
+
+	MacOSASCII = `
+       .:'
+    __ :'__
+ .'    '   '.
+:           :
+:           :
+ :         :
+  '.____.'`
+
+	WindowsASCII = `
+ ████████  ████████
+ ████████  ████████
+ ████████  ████████
+ ████████  ████████
+
+ ████████  ████████
+ ████████  ████████
+ ████████  ████████
+ ████████  ████████`
+
+	FreeBSDASCII = `
+ /\\,-'''''-,/\\
+ \\_)       (_/
+ |           |
+ |           |
+  ;         ;
+   '-_____-'`
+
+	AlpineASCII = `
+    /\\ /\\
+   /  \\  \\
+  /    \\  \\
+ /      \\  \\
+/__      \\__\\`
+)
+
+// DetectOS attempts to detect the operating system and distribution (cached)
+func DetectOS() string {
+	detectedOSCacheOnce.Do(func() {
+		detectedOSCache = detectOSInternal()
+	})
+	return detectedOSCache
+}
+
+func detectOSInternal() string {
+	// Try to read /etc/os-release for Linux distributions
+	if data, err := os.ReadFile("/etc/os-release"); err == nil {
+		content := string(data)
+		lines := strings.Split(content, "\n")
+
+		for _, line := range lines {
+			if strings.HasPrefix(line, "ID=") {
+				distro := strings.TrimPrefix(line, "ID=")
+				distro = strings.Trim(distro, "\"")
+				return strings.ToLower(distro)
+			}
+		}
+	}
+
+	// Fallback: check specific distro files
+	distroChecks := map[string]string{
+		"/etc/arch-release":    "arch",
+		"/etc/debian_version":  "debian",
+		"/etc/fedora-release":  "fedora",
+		"/etc/gentoo-release":  "gentoo",
+		"/etc/manjaro-release": "manjaro",
+	}
+
+	for file, distro := range distroChecks {
+		if _, err := os.Stat(file); err == nil {
+			return distro
+		}
+	}
+
+	// Check for macOS
+	if _, err := os.Stat("/System/Library/CoreServices/SystemVersion.plist"); err == nil {
+		return "macos"
+	}
+
+	// Check for Windows (if running under WSL or similar)
+	if _, err := os.Stat("/mnt/c/Windows"); err == nil {
+		return "windows"
+	}
+
+	return "linux"
+}
+
+// GetASCIIArt returns ASCII art for the detected or specified OS
+func GetASCIIArt(osName string) string {
+	// Normalize OS name
+	osName = strings.ToLower(osName)
+
+	switch {
+	case strings.Contains(osName, "arch"):
+		return ArchASCII
+	case strings.Contains(osName, "ubuntu"):
+		return UbuntuASCII
+	case strings.Contains(osName, "debian"):
+		return DebianASCII
+	case strings.Contains(osName, "fedora"):
+		return FedoraASCII
+	case strings.Contains(osName, "mint"), strings.Contains(osName, "linuxmint"):
+		return MintASCII
+	case strings.Contains(osName, "manjaro"):
+		return ManjaroASCII
+	case strings.Contains(osName, "pop"), strings.Contains(osName, "popos"):
+		return PopOSASCII
+	case strings.Contains(osName, "gentoo"):
+		return GentooASCII
+	case strings.Contains(osName, "opensuse"), strings.Contains(osName, "suse"):
+		return OpenSUSEASCII
+	case strings.Contains(osName, "kali"):
+		return KaliASCII
+	case strings.Contains(osName, "void"):
+		return VoidASCII
+	case strings.Contains(osName, "nixos"), strings.Contains(osName, "nix"):
+		return NixOSASCII
+	case strings.Contains(osName, "macos"), strings.Contains(osName, "darwin"):
+		return MacOSASCII
+	case strings.Contains(osName, "windows"):
+		return WindowsASCII
+	case strings.Contains(osName, "freebsd"):
+		return FreeBSDASCII
+	case strings.Contains(osName, "alpine"):
+		return AlpineASCII
+	default:
+		return DefaultASCII
+	}
+}

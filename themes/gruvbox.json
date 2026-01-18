@@ -1,0 +1,20 @@
+{
+  "name": "gruvbox",
+  "colors": {
+    "primary": "#d79921",
+    "secondary": "#b16286",
+    "accent": "#cc241d",
+    "label": "#fabd2f",
+    "value": "#b8bb26",
+    "border": "#504945",
+    "background": "#282828"
+  },
+  "ascii": "auto",
+  "layout": {
+    "show_ascii": true,
+    "ascii_width": 30,
+    "separator": ": ",
+    "padding": 2,
+    "border_style": "rounded"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "solarized-dark",
+  "colors": {
+    "primary": "#268bd2",
+    "secondary": "#6c71c4",
+    "accent": "#dc322f",
+    "label": "#b58900",
+    "value": "#859900",
+    "border": "#586e75",
+    "background": "#002b36"
+  },
+  "ascii": "auto",
+  "layout": {
+    "show_ascii": true,
+    "ascii_width": 30,
+    "separator": " | ",
+    "padding": 2,
+    "border_style": "double"
+  }
+}

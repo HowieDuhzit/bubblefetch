@@ -1,0 +1,20 @@
+{
+  "name": "default",
+  "colors": {
+    "primary": "#89b4fa",
+    "secondary": "#cba6f7",
+    "accent": "#f38ba8",
+    "label": "#f9e2af",
+    "value": "#a6e3a1",
+    "border": "#585b70",
+    "background": "#1e1e2e"
+  },
+  "ascii": "auto",
+  "layout": {
+    "show_ascii": true,
+    "ascii_width": 30,
+    "separator": " ",
+    "padding": 2,
+    "border_style": "rounded"
+  }
+}
