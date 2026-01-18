@@ -1,8 +1,19 @@
-# bubblefetch
-
-A simple, elegant, and highly customizable system information tool built with Go and Bubbletea. An alternative to neofetch/fastfetch with beautiful TUI, extensive theming, and remote system support.
-
-Landing page: https://howieduhzit.github.io/bubblefetch/
+<p align="center">
+  <img src="images/Logo.webp" width="120" alt="Bubblefetch logo" />
+</p>
+<h1 align="center">bubblefetch</h1>
+<p align="center">
+  A simple, elegant, and highly customizable system information tool built with Go and Bubbletea.
+  An alternative to neofetch/fastfetch with beautiful TUI, extensive theming, and remote system support.
+</p>
+<p align="center">
+  <a href="https://howieduhzit.github.io/bubblefetch/">Landing page</a> ·
+  <a href="QUICKSTART.md">Quickstart</a> ·
+  <a href="#themes">Themes</a>
+</p>
+<p align="center">
+  <img src="images/Banner.webp" alt="Bubblefetch preview banner" />
+</p>
 
 ## Features
 
