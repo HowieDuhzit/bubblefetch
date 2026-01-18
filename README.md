@@ -15,21 +15,35 @@
   <img src="images/Banner.webp" alt="Bubblefetch preview banner" />
 </p>
 
+## ✨ What's New in v0.3.0
+
+🎉 **Major Feature Release!** Four powerful new features to enhance your bubblefetch experience:
+
+- **🔌 Plugin System** - Create custom modules with Go plugins
+- **🖼️ Image Export** - Export as PNG, SVG, or HTML
+- **🧙 Config Wizard** - Interactive TUI setup
+- **🌐 Public IP** - Optional public IP detection
+
+See [CHANGELOG.md](CHANGELOG.md) for complete details.
+
 ## Features
 
+### Core Features
 - **⚡ Blazing Fast**: Average 1.2ms collection time - **100x faster than neofetch, 8x faster than fastfetch**
 - **Beautiful TUI**: Built with Bubbletea and Lipgloss for elegant terminal UI
 - **OS Detection**: Automatically detects your OS/distro and displays appropriate ASCII art
-- **SSH Remote Support**: Fetch system info from remote systems via SSH
-- **Plugin System**: Extend with custom modules using Go plugins (.so files)
-- **Interactive Config**: TUI wizard for easy configuration
-- **Image Export**: Export as PNG, SVG, or HTML
-- **Export Modes**: Export to JSON, YAML, or plain text
-- **Public IP Detection**: Optional public IP display (privacy-first, disabled by default)
-- **Benchmark Mode**: Measure collection performance
-- **Highly Customizable**: YAML config, custom themes, modular system info display
-- **Comprehensive Info**: CPU, GPU, memory, disk, network, battery, and more
+- **Comprehensive Info**: CPU, GPU, memory, disk, network, battery, local IP, and more
 - **Themeable**: 8 built-in themes with easy custom theme creation
+
+### Advanced Features
+- **🔌 Plugin System**: Extend with custom modules using Go plugins (.so files)
+- **🧙 Interactive Config Wizard**: TUI-guided setup with theme preview and module selection
+- **🖼️ Image Export**: Export as PNG (raster), SVG (vector), or HTML (webpage)
+- **🌐 Public IP Detection**: Optional public IP display (privacy-first, disabled by default)
+- **🌍 SSH Remote Support**: Fetch system info from remote systems via SSH
+- **📤 Export Modes**: Export to JSON, YAML, or plain text
+- **📊 Benchmark Mode**: Measure collection performance
+- **⚙️ Highly Customizable**: YAML config, custom themes, modular system info display
 
 ## Installation
 
@@ -61,6 +75,32 @@ sudo mv bubblefetch /usr/local/bin/
 ```bash
 go install github.com/yourusername/bubblefetch/cmd/bubblefetch@latest
 ```
+
+## Quick Start
+
+New to bubblefetch? Get started in 60 seconds:
+
+```bash
+# 1. Install bubblefetch
+git clone https://github.com/yourusername/bubblefetch.git
+cd bubblefetch
+./install.sh
+
+# 2. Run the interactive setup wizard
+bubblefetch --config-wizard
+
+# 3. Run bubblefetch!
+bubblefetch
+
+# 4. Try different themes
+bubblefetch --theme dracula
+bubblefetch --theme nord
+
+# 5. Export your setup
+bubblefetch --image-export png --image-output my-setup.png
+```
+
+That's it! See [QUICKSTART.md](QUICKSTART.md) for more detailed guidance.
 
 ## Usage
 
@@ -226,32 +266,72 @@ bubblefetch --help
 
 ## Configuration
 
-Copy the example config to get started:
+### Quick Setup
+
+Use the interactive wizard for guided setup:
+
+```bash
+bubblefetch --config-wizard
+```
+
+Or copy the example config:
 
 ```bash
 mkdir -p ~/.config/bubblefetch
 cp config.example.yaml ~/.config/bubblefetch/config.yaml
 ```
 
-Edit `~/.config/bubblefetch/config.yaml` to customize:
+### Configuration File
+
+Edit `~/.config/bubblefetch/config.yaml`:
 
 ```yaml
-theme: default
+# Theme selection
+theme: default  # Options: default, minimal, dracula, nord, gruvbox, tokyo-night, monokai, solarized-dark
 
+# Modules to display (in order)
 modules:
   - os
   - kernel
   - hostname
   - uptime
   - cpu
+  - gpu
   - memory
   - disk
   - shell
   - terminal
+  - de
+  - wm
+  - localip
+  # - publicip  # Requires enable_public_ip: true
+  - battery
 
+# Privacy: Public IP detection (disabled by default)
+enable_public_ip: false
+
+# Plugin directory (custom modules)
+plugin_dir: ~/.config/bubblefetch/plugins
+
+# SSH configuration for remote systems
 ssh:
   port: 22
+  user: ""           # Leave empty to use current user
+  key_path: ""       # Leave empty to use default (~/.ssh/id_rsa)
 ```
+
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `theme` | string | `default` | Theme name to use |
+| `modules` | array | (all) | List of modules to display |
+| `enable_public_ip` | bool | `false` | Enable public IP detection |
+| `plugin_dir` | string | `~/.config/bubblefetch/plugins` | Plugin directory path |
+| `remote` | string | `""` | Remote system (SSH) |
+| `ssh.port` | int | `22` | SSH port |
+| `ssh.user` | string | `""` | SSH username |
+| `ssh.key_path` | string | `""` | SSH private key path |
 
 ## Themes
 
@@ -348,20 +428,34 @@ bubblefetch/
 ├── internal/
 │   ├── config/               # Config loading & validation
 │   ├── collectors/           # System info collectors
-│   │   ├── local/           # Local system info
-│   │   └── remote/          # SSH-based remote info (planned)
+│   │   ├── local/           # Local system info (with public IP)
+│   │   └── remote/          # SSH-based remote info
+│   ├── export/               # Export engines (JSON, YAML, text, PNG, SVG, HTML)
+│   ├── plugins/              # Plugin loader and manager
 │   ├── ui/                   # Bubbletea TUI components
+│   │   ├── config_wizard/  # Interactive config wizard
 │   │   ├── theme/           # Theme engine
 │   │   └── modules/         # Display modules
-│   └── plugins/              # Plugin system (planned)
-├── themes/                   # Built-in theme files
+├── plugins/
+│   └── examples/             # Example plugins (hello.go)
+├── themes/                   # Built-in theme files (8 themes)
+├── docs/                     # Documentation
+│   └── PLUGINS.md           # Plugin development guide
 └── config.example.yaml       # Example configuration
 ```
 
 ### Building
 
 ```bash
+# Development build
 go build -o bubblefetch ./cmd/bubblefetch
+
+# Optimized build
+go build -ldflags="-s -w" -o bubblefetch ./cmd/bubblefetch
+
+# Build plugins
+make plugin-hello
+make install-plugins
 ```
 
 ### Running Tests
@@ -370,12 +464,26 @@ go build -o bubblefetch ./cmd/bubblefetch
 go test ./...
 ```
 
+### Makefile Targets
+
+```bash
+make build           # Build binary
+make build-release   # Build optimized binary
+make install         # Install to system
+make clean           # Clean build artifacts
+make benchmark       # Run benchmarks
+make plugins         # Build all plugins
+make install-plugins # Install plugins to config dir
+make clean-plugins   # Clean plugin artifacts
+```
+
 ## Roadmap
 
+### ✅ Completed (v0.3.0)
 - [x] Basic local system info collection
-- [x] Parallel data collection for speed
+- [x] Parallel data collection for speed (1.2ms average)
 - [x] Theme system with Lipgloss
-- [x] OS-specific ASCII art auto-detection
+- [x] OS-specific ASCII art auto-detection (15+ distros)
 - [x] Modular display system
 - [x] YAML configuration
 - [x] GPU, network, and battery modules
@@ -384,15 +492,80 @@ go test ./...
 - [x] Benchmark mode
 - [x] 8 built-in themes
 - [x] Installation scripts
-- [ ] Plugin system for custom modules
+- [x] **Plugin system for custom modules** (v0.3.0)
+- [x] **Public IP detection** (v0.3.0)
+- [x] **Interactive configuration wizard** (v0.3.0)
+- [x] **Image export (PNG/SVG/HTML)** (v0.3.0)
+
+### 🚧 Planned (Future)
 - [ ] Package for major Linux distros (AUR, Homebrew, apt, etc.)
-- [ ] Public IP detection
-- [ ] Interactive configuration mode
-- [ ] Screenshot/image export
+- [ ] Real-time monitoring mode (live updates)
+- [ ] Plugin marketplace/repository
+- [ ] More export formats (PDF, Markdown)
+- [ ] Theme gallery/preview mode
+- [ ] Custom color schemes without JSON
+- [ ] Windows support improvements
+
+## Command-Line Reference
+
+```
+Usage: bubblefetch [OPTIONS]
+
+Options:
+  --config string
+        Path to config file (default: ~/.config/bubblefetch/config.yaml)
+
+  --theme string
+        Theme name to use (overrides config)
+
+  --remote string
+        Remote system IP/hostname to fetch info from (via SSH)
+
+  --export string
+        Export format: json, yaml, or text
+
+  --pretty
+        Pretty print JSON output (default: true)
+
+  --benchmark
+        Run benchmark mode (10 iterations)
+
+  --config-wizard
+        Run interactive configuration wizard
+
+  --image-export string
+        Export as image: png, svg, or html
+
+  --image-output string
+        Image output path (default: bubblefetch.{format})
+
+  --version
+        Print version information
+
+  --help
+        Show help message
+
+Examples:
+  bubblefetch                                    # Run with default config
+  bubblefetch --theme dracula                    # Use dracula theme
+  bubblefetch --config-wizard                    # Interactive setup
+  bubblefetch --remote user@server               # SSH to remote system
+  bubblefetch --export json --pretty=false       # Export compact JSON
+  bubblefetch --image-export png                 # Export as PNG
+  bubblefetch --benchmark                        # Performance test
+```
 
 ## Contributing
 
 Contributions welcome! Please feel free to submit a Pull Request.
+
+### Areas for Contribution
+- New built-in modules
+- Additional themes
+- Plugin examples
+- Performance improvements
+- Documentation improvements
+- Bug fixes and testing
 
 ## License
 
@@ -400,7 +573,30 @@ MIT License - see LICENSE file for details
 
 ## Acknowledgments
 
-- [Bubbletea](https://github.com/charmbracelet/bubbletea) - TUI framework
-- [Lipgloss](https://github.com/charmbracelet/lipgloss) - Style definitions
-- [gopsutil](https://github.com/shirou/gopsutil) - System information library
-- Inspired by [neofetch](https://github.com/dylanaraps/neofetch) and [fastfetch](https://github.com/fastfetch-cli/fastfetch)
+Built with these amazing libraries:
+
+- [Bubbletea](https://github.com/charmbracelet/bubbletea) - Powerful TUI framework
+- [Lipgloss](https://github.com/charmbracelet/lipgloss) - Style definitions for terminal UIs
+- [gopsutil](https://github.com/shirou/gopsutil) - Cross-platform system information library
+- [gg](https://github.com/fogleman/gg) - 2D graphics library for PNG export
+- [gopkg.in/yaml.v3](https://github.com/go-yaml/yaml) - YAML support
+
+Inspired by:
+- [neofetch](https://github.com/dylanaraps/neofetch) - The original system info tool
+- [fastfetch](https://github.com/fastfetch-cli/fastfetch) - Fast neofetch alternative in C
+
+## Performance
+
+bubblefetch is designed for speed:
+
+- **Average collection time**: 1.2ms (without network calls)
+- **100x faster** than neofetch (~150ms)
+- **8x faster** than fastfetch (~10ms)
+
+Performance achievements:
+- Parallel data collection using goroutines
+- Fast GPU detection via `/sys/class/drm` (instant)
+- OS detection caching with `sync.Once`
+- Optimized binary with `-ldflags="-s -w"`
+
+Run `bubblefetch --benchmark` to see performance on your system!
