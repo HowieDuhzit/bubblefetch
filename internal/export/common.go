@@ -8,22 +8,47 @@ import (
 func splitRendered(rendered, separator string) (string, string, bool) {
 	clean := stripANSI(rendered)
 	if separator == "" {
-		return "", "", false
+		separator = ""
 	}
 
-	parts := strings.SplitN(clean, separator, 2)
-	if len(parts) != 2 {
-		return "", "", false
+	if strings.TrimSpace(separator) == "" {
+		separator = ""
 	}
 
-	label := strings.TrimSpace(parts[0])
-	value := strings.TrimSpace(parts[1])
-
-	if label == "" && value == "" {
-		return "", "", false
+	candidates := []string{
+		separator,
+		": ",
+		":",
+		" | ",
+		" → ",
+		" - ",
 	}
 
-	return label, value, true
+	for _, sep := range candidates {
+		if sep == "" {
+			continue
+		}
+		if !strings.Contains(clean, sep) {
+			continue
+		}
+
+		parts := strings.SplitN(clean, sep, 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		label := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		label = strings.TrimRight(label, ":")
+
+		if label == "" && value == "" {
+			continue
+		}
+
+		return label, value, true
+	}
+
+	return "", "", false
 }
 
 func sanitizeText(input string) string {

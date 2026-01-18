@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-	"strings"
 )
 
 const htmlTemplate = `<!DOCTYPE html>
@@ -158,13 +157,13 @@ func (e *ImageExporter) prepareHTMLData() map[string]interface{} {
 			continue
 		}
 
-		parts := strings.SplitN(rendered, e.theme.Layout.Separator, 2)
-		if len(parts) != 2 {
+		label, value, ok := splitRendered(rendered, e.theme.Layout.Separator)
+		if !ok {
 			continue
 		}
 
-		label := stripANSI(parts[0])
-		value := stripANSI(parts[1])
+		label = sanitizeText(label)
+		value = sanitizeText(value)
 
 		fields = append(fields, htmlField{
 			Label: label,
