@@ -14,8 +14,29 @@ type Module interface {
 	Render(info *collectors.SystemInfo, styles theme.Styles) string
 }
 
+// pluginManager holds the global plugin manager instance
+var pluginManager PluginManager
+
+// PluginManager interface for plugin lookup
+type PluginManager interface {
+	GetPlugin(name string) (Module, bool)
+}
+
+// InitPlugins initializes the plugin system with the given manager
+func InitPlugins(pm PluginManager) {
+	pluginManager = pm
+}
+
 // Factory creates modules by name
 func Factory(name string) Module {
+	// Check plugins first
+	if pluginManager != nil {
+		if mod, ok := pluginManager.GetPlugin(name); ok {
+			return mod
+		}
+	}
+
+	// Fall back to built-in modules
 	switch name {
 	case "os":
 		return &OSModule{}
@@ -45,6 +66,8 @@ func Factory(name string) Module {
 		return &NetworkModule{}
 	case "localip":
 		return &LocalIPModule{}
+	case "publicip":
+		return &PublicIPModule{}
 	case "battery":
 		return &BatteryModule{}
 	default:

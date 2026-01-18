@@ -2,6 +2,53 @@
 
 All notable changes to bubblefetch will be documented in this file.
 
+## [0.3.0] - 2026-01-18
+
+### Major Features
+
+#### Added
+- **Public IP Detection**: New `publicip` module to display public IP address
+  - Fetches from multiple services (api.ipify.org, icanhazip.com, ifconfig.me)
+  - 2-second timeout with automatic fallback
+  - Privacy-first: disabled by default via `enable_public_ip` config
+  - Add `publicip` to modules list when enabled
+
+- **Plugin System**: Extensible module system using Go plugins (.so files)
+  - Load custom modules from `~/.config/bubblefetch/plugins/`
+  - Plugins implement simple API: `ModuleName` variable and `Render()` function
+  - Full access to system info and theme styles
+  - Example hello plugin included in `plugins/examples/`
+  - Makefile targets for building plugins (`make plugin-hello`)
+  - Comprehensive documentation in `docs/PLUGINS.md`
+  - Platform support: Linux, macOS, FreeBSD (not Windows)
+
+- **Interactive Config Wizard**: TUI wizard for easy configuration
+  - Run with `--config-wizard` flag
+  - Multi-step guided setup: theme, modules, privacy, plugins
+  - Visual module selection with checkboxes
+  - Progress indicator and keyboard navigation
+  - Saves to `~/.config/bubblefetch/config.yaml`
+
+- **Image Export**: Export system info as images
+  - PNG export with `--image-export png` using fogleman/gg
+  - SVG export with `--image-export svg` (vector graphics)
+  - HTML export with `--image-export html` (standalone webpage)
+  - Respects theme colors and styles
+  - Custom output path with `--image-output`
+  - Perfect for sharing your setup
+
+### Changed
+- Config schema now includes `enable_public_ip` and `plugin_dir` fields
+- Module factory now checks plugins before built-in modules
+- Updated example config with public IP and plugin documentation
+
+### Technical
+- Added dependencies: `github.com/fogleman/gg` for PNG rendering
+- New packages: `internal/plugins`, `internal/ui/config_wizard`
+- Image exporters use ANSI stripping for clean output
+- Config save function added for wizard
+- Font fallback system for PNG export
+
 ## [0.2.1] - 2026-01-17
 
 ### Performance Improvements

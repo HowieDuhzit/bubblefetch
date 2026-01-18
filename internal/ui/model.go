@@ -41,7 +41,7 @@ func NewModel(cfg *config.Config) Model {
 	if cfg.Remote != "" {
 		collector = remote.New(cfg.Remote, cfg)
 	} else {
-		collector = local.New()
+		collector = local.New(cfg.EnablePublicIP)
 	}
 
 	return Model{

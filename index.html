@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bubblefetch - Fast, Elegant System Info</title>
+    <meta
+      name="description"
+      content="Bubblefetch is a fast, themeable system information tool built with Go and Bubbletea."
+    />
+    <link rel="canonical" href="https://howieduhzit.github.io/bubblefetch/" />
+    <meta name="theme-color" content="#f7f3ef" />
+    <meta property="og:site_name" content="Bubblefetch" />
+    <meta property="og:title" content="Bubblefetch - Fast, Elegant System Info" />
+    <meta
+      property="og:description"
+      content="Bubblefetch is a fast, themeable system information tool built with Go and Bubbletea."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://howieduhzit.github.io/bubblefetch/" />
+    <meta
+      property="og:image"
+      content="https://howieduhzit.github.io/bubblefetch/images/Banner.webp"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bubblefetch - Fast, Elegant System Info" />
+    <meta
+      name="twitter:description"
+      content="Bubblefetch is a fast, themeable system information tool built with Go and Bubbletea."
+    />
+    <meta
+      name="twitter:image"
+      content="https://howieduhzit.github.io/bubblefetch/images/Banner.webp"
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="site.webmanifest" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+      :root {
+        --ink: #0b0f1a;
+        --ink-muted: #3b475d;
+        --paper: #f7f3ef;
+        --cream: #fff6e8;
+        --accent: #ff6b35;
+        --accent-2: #2e7dff;
+        --mint: #2ad59b;
+        --shadow: 0 20px 60px rgba(10, 12, 20, 0.18);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        background: radial-gradient(1200px 600px at 10% 5%, #ffe6bf, transparent),
+          radial-gradient(900px 500px at 90% 0%, #c9dbff, transparent),
+          linear-gradient(160deg, #fff9f1 0%, #f3f1ff 100%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 36px 20px 80px;
+        position: relative;
+      }
+
+      .glow {
+        position: absolute;
+        top: -60px;
+        right: -120px;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 107, 53, 0.35), transparent 70%);
+        filter: blur(2px);
+        z-index: 0;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+
+      .logo img {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+
+      .nav {
+        display: flex;
+        gap: 18px;
+        font-weight: 600;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 36px;
+        align-items: center;
+        margin-top: 50px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.6rem, 5vw, 4rem);
+        margin: 0 0 12px;
+        line-height: 1.05;
+      }
+
+      .hero p {
+        font-size: 1.05rem;
+        color: var(--ink-muted);
+        margin: 0 0 22px;
+      }
+
+      .hero .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .chip {
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--cream);
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(20, 24, 35, 0.08);
+      }
+
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 22px;
+        background: var(--accent);
+        color: white;
+        border-radius: 14px;
+        font-weight: 700;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 40px rgba(255, 107, 53, 0.35);
+      }
+
+      .hero-visual {
+        position: relative;
+      }
+
+      .hero-visual img {
+        width: 100%;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .badge {
+        position: absolute;
+        bottom: -18px;
+        left: 16px;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(20, 24, 35, 0.08);
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        box-shadow: var(--shadow);
+      }
+
+      .badge span {
+        color: var(--accent-2);
+      }
+
+      .section {
+        margin-top: 70px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .section h2 {
+        font-size: 2rem;
+        margin-bottom: 14px;
+      }
+
+      .section p {
+        margin: 0 0 24px;
+        color: var(--ink-muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        background: white;
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid rgba(10, 12, 20, 0.06);
+        box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+      }
+
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9rem;
+        background: #101624;
+        color: #f6f0e9;
+        padding: 14px;
+        border-radius: 14px;
+        margin: 14px 0 0;
+      }
+
+      .split {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        align-items: center;
+      }
+
+      .panel {
+        background: linear-gradient(140deg, #101624, #202a3d);
+        color: #f5efe6;
+        padding: 24px;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel strong {
+        color: var(--mint);
+      }
+
+      footer {
+        margin-top: 70px;
+        text-align: center;
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-in {
+        animation: rise 0.8s ease both;
+      }
+
+      .delay-1 {
+        animation-delay: 0.2s;
+      }
+
+      .delay-2 {
+        animation-delay: 0.4s;
+      }
+
+      .delay-3 {
+        animation-delay: 0.6s;
+      }
+
+      @media (max-width: 720px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .nav {
+          flex-wrap: wrap;
+        }
+
+        .badge {
+          position: static;
+          margin-top: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="glow" aria-hidden="true"></div>
+      <header>
+        <div class="logo">
+          <img src="images/Logo.webp" alt="Bubblefetch logo" />
+          Bubblefetch
+        </div>
+        <nav class="nav">
+          <a href="#features">Features</a>
+          <a href="#themes">Themes</a>
+          <a href="#quickstart">Quickstart</a>
+          <a href="#performance">Performance</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <h1 class="fade-in">Fast system info with a calm, polished TUI.</h1>
+          <p class="fade-in delay-1">
+            Bubblefetch is a Go-powered alternative to neofetch/fastfetch that
+            blends lightning-fast collection with gorgeous Bubbletea visuals.
+          </p>
+          <div class="hero meta fade-in delay-2">
+            <div class="chip">1.3ms average collection</div>
+            <div class="chip">Remote SSH support</div>
+            <div class="chip">Themeable UI</div>
+          </div>
+          <div style="margin-top: 24px" class="fade-in delay-3">
+            <a class="cta" href="README.md">Read the README</a>
+          </div>
+        </div>
+        <div class="hero-visual fade-in delay-1">
+          <img src="images/Banner.webp" alt="Bubblefetch preview banner" />
+          <div class="badge">
+            <span>100x</span> faster than classic fetch tools
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <h2>Everything you need, nothing you don't</h2>
+        <p>
+          Collect OS, hardware, network, and battery details with zero fuss, then
+          export the results in your preferred format.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Modular info blocks</h3>
+            Toggle collectors in config for a custom readout.
+          </div>
+          <div class="card">
+            <h3>Export ready</h3>
+            JSON, YAML, or plain text output for scripts or docs.
+          </div>
+          <div class="card">
+            <h3>Remote friendly</h3>
+            Pull stats over SSH with your existing config.
+          </div>
+          <div class="card">
+            <h3>Theme engine</h3>
+            Ship with built-in themes or add your own.
+          </div>
+        </div>
+      </section>
+
+      <section class="section split" id="quickstart">
+        <div>
+          <h2>Quickstart</h2>
+          <p>Clone, build, and run in under a minute.</p>
+          <div class="mono">
+            git clone https://github.com/yourusername/bubblefetch.git<br />
+            cd bubblefetch<br />
+            make run
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Configuration</h3>
+          <p>
+            Copy the sample config, then edit modules and themes to taste.
+          </p>
+          <div class="mono">
+            cp config.example.yaml ~/.config/bubblefetch/config.yaml
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="themes">
+        <h2>Style-first themes</h2>
+        <p>
+          Try curated themes like dracula, nord, or tokyo-night and ship your own
+          JSON themes in seconds.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Run themed</h3>
+            <div class="mono">make run-dracula</div>
+          </div>
+          <div class="card">
+            <h3>Theme files</h3>
+            Drop JSON in <code>~/.config/bubblefetch/themes/</code>.
+          </div>
+          <div class="card">
+            <h3>Layout control</h3>
+            Define borders, padding, and ASCII art per theme.
+          </div>
+        </div>
+      </section>
+
+      <section class="section split" id="performance">
+        <div class="panel">
+          <h3>Benchmark mode</h3>
+          <p>
+            Run local performance tests to verify collection time.
+          </p>
+          <div class="mono">make bench</div>
+        </div>
+        <div>
+          <h2>Built for speed</h2>
+          <p>
+            Bubblefetch averages around <strong>1.3ms</strong> collection time,
+            keeping your terminal prompt fast even with full module sets.
+          </p>
+          <div class="mono">./bubblefetch --benchmark</div>
+        </div>
+      </section>
+
+      <footer>
+        Built with Go, Bubbletea, and a love for clean terminals.
+      </footer>
+    </div>
+  </body>
+</html>

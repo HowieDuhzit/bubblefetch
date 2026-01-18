@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -8,10 +9,12 @@ import (
 )
 
 type Config struct {
-	Theme   string   `yaml:"theme"`
-	Remote  string   `yaml:"remote"`
-	Modules []string `yaml:"modules"`
-	SSH     SSHConfig `yaml:"ssh"`
+	Theme          string    `yaml:"theme"`
+	Remote         string    `yaml:"remote"`
+	Modules        []string  `yaml:"modules"`
+	SSH            SSHConfig `yaml:"ssh"`
+	EnablePublicIP bool      `yaml:"enable_public_ip"`
+	PluginDir      string    `yaml:"plugin_dir"`
 }
 
 type SSHConfig struct {
@@ -68,6 +71,39 @@ func defaultConfig() *Config {
 			Port: 22,
 		},
 	}
+}
+
+// NewDefault creates a new default configuration
+func NewDefault() *Config {
+	return defaultConfig()
+}
+
+// Save saves the configuration to the default config file
+func Save(cfg *Config) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("failed to get home directory: %w", err)
+	}
+
+	configPath := filepath.Join(home, ".config", "bubblefetch", "config.yaml")
+
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config: %w", err)
+	}
+
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(configPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create config directory: %w", err)
+	}
+
+	// Write config file
+	if err := os.WriteFile(configPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+
+	return nil
 }
 
 func defaultModules() []string {

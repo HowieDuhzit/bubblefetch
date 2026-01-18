@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bubblefetch - System Information</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #282828;
+            color: #b8bb26;
+            font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            
+            border: 2px solid #504945;
+            
+            border-radius: 10px;
+            padding: 40px;
+            gap: 40px;
+        }
+
+        .ascii {
+            color: #d79921;
+            white-space: pre;
+            flex: 0 0 auto;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .field {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .label {
+            color: #fabd2f;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .separator {
+            color: #fabd2f;
+        }
+
+        .value {
+            color: #b8bb26;
+            word-break: break-word;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #504945;
+            color: #b16286;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .ascii {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ascii">
+       /\
+      /  \
+     /\   \
+    /      \
+   /   ,,   \
+  /   |  |  -\
+ /_-&#39;&#39;    &#39;&#39;-_\</div>
+        <div class="info">
+            
+            <div class="field">
+                <span class="label">OS</span>
+                <span class="separator">: </span>
+                <span class="value">arch </span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Kernel</span>
+                <span class="separator">: </span>
+                <span class="value">6.18.3-arch1-1</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Host</span>
+                <span class="separator">: </span>
+                <span class="value">Duhzicon</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Uptime</span>
+                <span class="separator">: </span>
+                <span class="value">51m</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">CPU</span>
+                <span class="separator">: </span>
+                <span class="value">13th Gen Intel(R) Core(TM) i9-13900KF</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">GPU</span>
+                <span class="separator">: </span>
+                <span class="value">NVIDIA GPU (2489)</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Memory</span>
+                <span class="separator">: </span>
+                <span class="value">25.2 GiB / 94.1 GiB</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Disk</span>
+                <span class="separator">: </span>
+                <span class="value">494.5 GiB / 930.5 GiB</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Shell</span>
+                <span class="separator">: </span>
+                <span class="value">/bin/zsh</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Terminal</span>
+                <span class="separator">: </span>
+                <span class="value">tmux-256color</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">DE</span>
+                <span class="separator">: </span>
+                <span class="value">Hyprland</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">WM</span>
+                <span class="separator">: </span>
+                <span class="value">wayland</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Local IP</span>
+                <span class="separator">: </span>
+                <span class="value">192.168.8.182</span>
+            </div>
+            
+            <div class="footer">
+                Generated with bubblefetch v0.3.0 | Theme: gruvbox
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -13,10 +13,14 @@ import (
 	"github.com/yourusername/bubblefetch/internal/collectors"
 )
 
-type LocalCollector struct{}
+type LocalCollector struct {
+	enablePublicIP bool
+}
 
-func New() *LocalCollector {
-	return &LocalCollector{}
+func New(enablePublicIP bool) *LocalCollector {
+	return &LocalCollector{
+		enablePublicIP: enablePublicIP,
+	}
 }
 
 func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
@@ -44,6 +48,7 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 		netInfo  []collectors.NetworkInfo
 		batInfo  collectors.BatteryInfo
 		localIP  string
+		publicIP string
 	}
 
 	resultChan := make(chan result, 1)
@@ -52,7 +57,7 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 		var r result
 
 		// Run all collection in parallel using goroutines
-		done := make(chan bool, 8)
+		done := make(chan bool, 9)
 
 		go func() {
 			r.hostInfo, _ = host.Info()
@@ -94,8 +99,15 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 			done <- true
 		}()
 
+		go func() {
+			if c.enablePublicIP {
+				r.publicIP = detectPublicIP()
+			}
+			done <- true
+		}()
+
 		// Wait for all to complete
-		for i := 0; i < 8; i++ {
+		for i := 0; i < 9; i++ {
 			<-done
 		}
 
@@ -137,6 +149,7 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 	info.Network = r.netInfo
 	info.Battery = r.batInfo
 	info.LocalIP = r.localIP
+	info.PublicIP = r.publicIP
 
 	return info, nil
 }

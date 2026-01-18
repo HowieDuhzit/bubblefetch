@@ -2,13 +2,19 @@
 
 A simple, elegant, and highly customizable system information tool built with Go and Bubbletea. An alternative to neofetch/fastfetch with beautiful TUI, extensive theming, and remote system support.
 
+Landing page: https://howieduhzit.github.io/bubblefetch/
+
 ## Features
 
-- **⚡ Blazing Fast**: Average 1.3ms collection time - **100x faster than neofetch, 8x faster than fastfetch**
+- **⚡ Blazing Fast**: Average 1.2ms collection time - **100x faster than neofetch, 8x faster than fastfetch**
 - **Beautiful TUI**: Built with Bubbletea and Lipgloss for elegant terminal UI
 - **OS Detection**: Automatically detects your OS/distro and displays appropriate ASCII art
 - **SSH Remote Support**: Fetch system info from remote systems via SSH
+- **Plugin System**: Extend with custom modules using Go plugins (.so files)
+- **Interactive Config**: TUI wizard for easy configuration
+- **Image Export**: Export as PNG, SVG, or HTML
 - **Export Modes**: Export to JSON, YAML, or plain text
+- **Public IP Detection**: Optional public IP display (privacy-first, disabled by default)
 - **Benchmark Mode**: Measure collection performance
 - **Highly Customizable**: YAML config, custom themes, modular system info display
 - **Comprehensive Info**: CPU, GPU, memory, disk, network, battery, and more
@@ -92,6 +98,106 @@ bubblefetch --export json --pretty=false
 # Run 10 iterations and show performance stats
 bubblefetch --benchmark
 ```
+
+### Interactive Config Wizard
+
+First time setup? Run the interactive wizard:
+
+```bash
+bubblefetch --config-wizard
+```
+
+The wizard will guide you through:
+- Theme selection (preview all 8 built-in themes)
+- Module selection (choose which info to display)
+- Privacy settings (enable/disable public IP detection)
+- Plugin directory configuration
+
+Configuration is saved to `~/.config/bubblefetch/config.yaml`
+
+### Plugin System
+
+Create custom modules with Go plugins:
+
+```bash
+# Build example plugin
+make plugin-hello
+
+# Install to plugin directory
+make install-plugins
+
+# Add to config
+modules:
+  - hello  # Your custom plugin
+  - os
+  - cpu
+```
+
+**Plugin Development:**
+- See `docs/PLUGINS.md` for complete guide
+- Examples in `plugins/examples/`
+- Platform support: Linux, macOS, FreeBSD (not Windows)
+
+Quick example:
+```go
+package main
+
+import (
+    "github.com/yourusername/bubblefetch/internal/collectors"
+    "github.com/yourusername/bubblefetch/internal/ui/theme"
+)
+
+var ModuleName = "hello"
+
+func Render(info *collectors.SystemInfo, styles theme.Styles) string {
+    return styles.Label.Render("Hello") +
+           styles.Separator.Render(": ") +
+           styles.Value.Render("World!")
+}
+```
+
+### Image Export
+
+Export your system info as beautiful images:
+
+```bash
+# PNG export (raster image)
+bubblefetch --image-export png --image-output sysinfo.png
+
+# SVG export (vector graphics)
+bubblefetch --image-export svg --image-output sysinfo.svg
+
+# HTML export (standalone webpage)
+bubblefetch --image-export html --image-output sysinfo.html
+```
+
+Perfect for:
+- Sharing your setup on social media
+- Creating wallpapers
+- Documentation
+- r/unixporn submissions
+
+All exports respect your theme colors and styles!
+
+### Public IP Detection
+
+Optional module to display your public IP address:
+
+```yaml
+# In config.yaml
+enable_public_ip: true
+
+modules:
+  - os
+  - localip
+  - publicip  # Add this module
+```
+
+**Privacy First:**
+- Disabled by default
+- Requires external HTTP request
+- 2-second timeout
+- Falls back between multiple services
 
 ### Other Options
 
@@ -214,9 +320,12 @@ Available system information modules:
 - `wm` - Window manager
 - `network` - Active network interface and IP
 - `localip` - Local IP address
+- `publicip` - Public IP address (requires `enable_public_ip: true`)
 - `battery` - Battery status and percentage (laptops only)
 
 Configure module order in your config file.
+
+**Custom Modules**: Create your own with the plugin system! See `docs/PLUGINS.md`
 
 ## Development
 

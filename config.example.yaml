@@ -10,7 +10,7 @@ remote: ""
 
 # Modules to display (in order)
 # Available modules: os, kernel, hostname, uptime, cpu, gpu, memory, disk,
-#                    shell, terminal, de, wm, network, localip, battery
+#                    shell, terminal, de, wm, network, localip, publicip, battery
 modules:
   - os
   - kernel
@@ -26,6 +26,10 @@ modules:
   - wm
   - localip
   - battery
+
+# Privacy: Public IP detection (disabled by default)
+# Set to true to fetch and display your public IP address
+enable_public_ip: false
 
 # SSH configuration for remote systems
 ssh:

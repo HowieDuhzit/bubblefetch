@@ -28,3 +28,4 @@ go.work
 # OS
 .DS_Store
 Thumbs.db
+AGENTS.md

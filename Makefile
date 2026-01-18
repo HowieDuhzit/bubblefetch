@@ -80,3 +80,19 @@ export-yaml: build
 
 export-text: build
 	./bubblefetch --export text
+
+# Build example plugin
+plugin-hello:
+	go build -buildmode=plugin -o plugins/hello.so plugins/examples/hello.go
+
+# Build all example plugins
+plugins: plugin-hello
+
+# Install plugins to user directory
+install-plugins: plugins
+	mkdir -p ~/.config/bubblefetch/plugins
+	cp plugins/*.so ~/.config/bubblefetch/plugins/
+
+# Clean plugin artifacts
+clean-plugins:
+	rm -f plugins/*.so
