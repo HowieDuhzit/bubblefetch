@@ -233,6 +233,34 @@
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       }
 
+      .theme-grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        margin-top: 18px;
+      }
+
+      .theme-card {
+        background: white;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(10, 12, 20, 0.06);
+        box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
+      }
+
+      .theme-card img {
+        width: 100%;
+        border-radius: 12px;
+        display: block;
+      }
+
+      .theme-card span {
+        display: block;
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
       .plugin-grid {
         display: grid;
         gap: 18px;
@@ -485,6 +513,43 @@
           <div class="card">
             <h3>Layout control</h3>
             Define borders, padding, and ASCII art per theme.
+          </div>
+        </div>
+        <div class="theme-grid">
+          <div class="theme-card">
+            <img src="images/themes/Default.png" alt="Default theme preview" />
+            <span>Default</span>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Minimal.png" alt="Minimal theme preview" />
+            <span>Minimal</span>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Dracula.png" alt="Dracula theme preview" />
+            <span>Dracula</span>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Nord.png" alt="Nord theme preview" />
+            <span>Nord</span>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Gruvbox.png" alt="Gruvbox theme preview" />
+            <span>Gruvbox</span>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Tokyo-Night.png" alt="Tokyo Night theme preview" />
+            <span>Tokyo Night</span>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Monokai.png" alt="Monokai theme preview" />
+            <span>Monokai</span>
+          </div>
+          <div class="theme-card">
+            <img
+              src="images/themes/Solarized-Dark.png"
+              alt="Solarized Dark theme preview"
+            />
+            <span>Solarized Dark</span>
           </div>
         </div>
       </section>

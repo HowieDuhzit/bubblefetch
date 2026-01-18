@@ -361,6 +361,23 @@ All themes auto-detect your OS and display the appropriate ASCII art!
 - **monokai** - Classic Monokai Pro colors
 - **solarized-dark** - Precision colors for machines and people
 
+### Theme Previews
+
+<table>
+  <tr>
+    <td><img src="themes/Default.png" width="220" alt="Default theme preview" /></td>
+    <td><img src="themes/Minimal.png" width="220" alt="Minimal theme preview" /></td>
+    <td><img src="themes/Dracula.png" width="220" alt="Dracula theme preview" /></td>
+    <td><img src="themes/Nord.png" width="220" alt="Nord theme preview" /></td>
+  </tr>
+  <tr>
+    <td><img src="themes/Gruvbox.png" width="220" alt="Gruvbox theme preview" /></td>
+    <td><img src="themes/Tokyo-Night.png" width="220" alt="Tokyo Night theme preview" /></td>
+    <td><img src="themes/Monokai.png" width="220" alt="Monokai theme preview" /></td>
+    <td><img src="themes/Solarized-Dark.png" width="220" alt="Solarized Dark theme preview" /></td>
+  </tr>
+</table>
+
 ### Supported OS ASCII Art
 
 Auto-detected logos for: Arch, Ubuntu, Debian, Fedora, Mint, Manjaro, Pop!_OS, Gentoo, openSUSE, Kali, Void, NixOS, macOS, Windows, FreeBSD, Alpine, and more!
