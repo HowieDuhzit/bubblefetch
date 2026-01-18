@@ -9,7 +9,6 @@ then dive into examples, plugins, and performance notes.
 - `EXAMPLES.md` - Real-world usage patterns and exports
 - `PLUGINS.md` - Plugin API and authoring guide
 - `PERFORMANCE.md` - Benchmarks, speed notes, and optimization highlights
-- `ROADMAP.md` - Planned improvements and ideas
 - `CHANGELOG.md` - Release notes and history
 
 The landing page includes a plugin store powered by `plugins/manifest.json`.

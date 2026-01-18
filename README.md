@@ -475,12 +475,13 @@ bubblefetch/
 │   ├── EXAMPLES.md           # Usage examples
 │   ├── PERFORMANCE.md        # Performance notes
 │   ├── QUICKSTART.md         # 60-second setup
-│   ├── ROADMAP.md            # Planned improvements
 │   └── PLUGINS.md            # Plugin development guide
 ├── examples/
 │   └── exports/              # Sample export outputs
 │       ├── bubblefetch.html
 │       └── bubblefetch.svg
+├── packaging/                # Packaging assets
+│   └── aur/                   # AUR packages
 ├── site/                     # GitHub Pages site
 │   ├── index.html
 │   ├── site.webmanifest
@@ -523,35 +524,6 @@ make plugins         # Build all plugins
 make install-plugins # Install plugins to config dir
 make clean-plugins   # Clean plugin artifacts
 ```
-
-## Roadmap
-
-### ✅ Completed (v0.3.0)
-- [x] Basic local system info collection
-- [x] Parallel data collection for speed (1.2ms average)
-- [x] Theme system with Lipgloss
-- [x] OS-specific ASCII art auto-detection (15+ distros)
-- [x] Modular display system
-- [x] YAML configuration
-- [x] GPU, network, and battery modules
-- [x] SSH remote system support
-- [x] Export to JSON/YAML/Text
-- [x] Benchmark mode
-- [x] 8 built-in themes
-- [x] Installation scripts
-- [x] **Plugin system for custom modules** (v0.3.0)
-- [x] **Public IP detection** (v0.3.0)
-- [x] **Interactive configuration wizard** (v0.3.0)
-- [x] **Image export (PNG/SVG/HTML)** (v0.3.0)
-
-### 🚧 Planned (Future)
-- [ ] Package for major Linux distros (AUR, Homebrew, apt, etc.)
-- [ ] Real-time monitoring mode (live updates)
-- [ ] Plugin marketplace/repository
-- [ ] More export formats (PDF, Markdown)
-- [ ] Theme gallery/preview mode
-- [ ] Custom color schemes without JSON
-- [ ] Windows support improvements
 
 ## Command-Line Reference
 

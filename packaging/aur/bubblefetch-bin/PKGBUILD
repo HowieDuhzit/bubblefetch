@@ -1,0 +1,29 @@
+pkgname=bubblefetch-bin
+pkgver=0.3.0
+pkgrel=1
+pkgdesc="Fast, themeable system information tool built with Go and Bubbletea (prebuilt binary)"
+arch=("x86_64" "aarch64")
+url="https://github.com/howieduhzit/bubblefetch"
+license=("MIT")
+depends=()
+conflicts=("bubblefetch" "bubblefetch-git")
+source=("https://github.com/howieduhzit/bubblefetch/archive/refs/tags/v${pkgver}.tar.gz")
+source_x86_64=(
+  "bubblefetch::https://github.com/howieduhzit/bubblefetch/releases/download/v${pkgver}/bubblefetch_${pkgver}_linux_amd64"
+)
+source_aarch64=(
+  "bubblefetch::https://github.com/howieduhzit/bubblefetch/releases/download/v${pkgver}/bubblefetch_${pkgver}_linux_arm64"
+)
+sha256sums=("SKIP")
+sha256sums_x86_64=("SKIP")
+sha256sums_aarch64=("SKIP")
+
+package() {
+  install -Dm755 "$srcdir/bubblefetch" "$pkgdir/usr/bin/bubblefetch"
+  install -Dm644 "$srcdir/bubblefetch-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 "$srcdir/bubblefetch-$pkgver/config.example.yaml" \
+    "$pkgdir/usr/share/bubblefetch/config.example.yaml"
+  install -d "$pkgdir/usr/share/bubblefetch/themes"
+  install -m644 "$srcdir/bubblefetch-$pkgver/themes/"*.json \
+    "$pkgdir/usr/share/bubblefetch/themes/"
+}

@@ -28,4 +28,7 @@ go.work
 # OS
 .DS_Store
 Thumbs.db
+
+# Private notes
+ROADMAP_PRIVATE.md
 AGENTS.md
