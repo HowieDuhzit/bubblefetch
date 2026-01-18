@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"plugin"
 
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/modules"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 // PluginModule wraps a plugin's render function to implement the Module interface

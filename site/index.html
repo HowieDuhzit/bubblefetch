@@ -174,6 +174,13 @@
         box-shadow: 0 16px 40px rgba(255, 107, 53, 0.35);
       }
 
+      .cta.secondary {
+        background: var(--cream);
+        color: var(--ink);
+        border: 1px solid rgba(20, 24, 35, 0.1);
+        box-shadow: 0 10px 24px rgba(10, 12, 20, 0.12);
+      }
+
       .hero-visual {
         position: relative;
       }
@@ -224,6 +231,52 @@
         display: grid;
         gap: 18px;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .plugin-grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .plugin-card {
+        background: white;
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid rgba(10, 12, 20, 0.06);
+        box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .plugin-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: var(--ink-muted);
+        font-size: 0.85rem;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(20, 24, 35, 0.12);
+        background: var(--cream);
+      }
+
+      .button.primary {
+        background: var(--accent-2);
+        color: white;
+        border-color: transparent;
       }
 
       .card {
@@ -330,6 +383,7 @@
         <nav class="nav">
           <a href="#features">Features</a>
           <a href="#themes">Themes</a>
+          <a href="#plugins">Plugins</a>
           <a href="#quickstart">Quickstart</a>
           <a href="#performance">Performance</a>
         </nav>
@@ -348,7 +402,14 @@
             <div class="chip">Themeable UI</div>
           </div>
           <div style="margin-top: 24px" class="fade-in delay-3">
-            <a class="cta" href="README.md">Read the README</a>
+            <a class="cta" href="https://github.com/howieduhzit/bubblefetch#readme"
+              >Read the README</a
+            >
+            <a
+              class="cta secondary"
+              href="https://buymeacoffee.com/howieduhzit"
+              >Buy me a coffee</a
+            >
           </div>
         </div>
         <div class="hero-visual fade-in delay-1">
@@ -390,7 +451,7 @@
           <h2>Quickstart</h2>
           <p>Clone, build, and run in under a minute.</p>
           <div class="mono">
-            git clone https://github.com/yourusername/bubblefetch.git<br />
+            git clone https://github.com/howieduhzit/bubblefetch.git<br />
             cd bubblefetch<br />
             make run
           </div>
@@ -428,6 +489,18 @@
         </div>
       </section>
 
+      <section class="section" id="plugins">
+        <h2>Plugin store</h2>
+        <p>
+          Browse community plugins sourced from the repo manifest. Downloads are
+          platform-specific Go plugins (`.so`).
+        </p>
+        <div class="plugin-grid" id="plugin-grid"></div>
+        <p class="mono" id="plugin-status" style="margin-top: 16px">
+          Loading plugins...
+        </p>
+      </section>
+
       <section class="section split" id="performance">
         <div class="panel">
           <h3>Benchmark mode</h3>
@@ -450,5 +523,81 @@
         Built with Go, Bubbletea, and a love for clean terminals.
       </footer>
     </div>
+    <script>
+      const pluginGrid = document.getElementById("plugin-grid");
+      const pluginStatus = document.getElementById("plugin-status");
+      const manifestUrl =
+        "https://raw.githubusercontent.com/howieduhzit/bubblefetch/main/plugins/manifest.json";
+
+      function renderPlugins(plugins) {
+        if (!plugins.length) {
+          pluginStatus.textContent = "No plugins published yet.";
+          return;
+        }
+
+        pluginStatus.remove();
+        plugins.forEach((plugin) => {
+          const card = document.createElement("div");
+          card.className = "plugin-card";
+
+          const title = document.createElement("h3");
+          title.textContent = plugin.name;
+
+          const description = document.createElement("p");
+          description.textContent = plugin.description || "No description yet.";
+
+          const meta = document.createElement("div");
+          meta.className = "plugin-meta";
+          meta.textContent = `Version ${plugin.version || "0.1.0"}`;
+
+          const platforms = document.createElement("div");
+          platforms.className = "plugin-meta";
+          if (plugin.platforms && plugin.platforms.length) {
+            platforms.textContent = `Platforms: ${plugin.platforms.join(", ")}`;
+          }
+
+          const buttons = document.createElement("div");
+          buttons.className = "button-row";
+
+          if (plugin.download) {
+            const download = document.createElement("a");
+            download.className = "button primary";
+            download.href = plugin.download;
+            download.textContent = "Download";
+            buttons.appendChild(download);
+          }
+
+          if (plugin.source) {
+            const source = document.createElement("a");
+            source.className = "button";
+            source.href = plugin.source;
+            source.textContent = "View source";
+            buttons.appendChild(source);
+          }
+
+          card.appendChild(title);
+          card.appendChild(description);
+          card.appendChild(meta);
+          if (platforms.textContent) {
+            card.appendChild(platforms);
+          }
+          card.appendChild(buttons);
+          pluginGrid.appendChild(card);
+        });
+      }
+
+      fetch(manifestUrl)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Manifest fetch failed.");
+          }
+          return response.json();
+        })
+        .then((data) => renderPlugins(data))
+        .catch(() => {
+          pluginStatus.textContent =
+            "Unable to load plugin manifest. Please check the repo.";
+        });
+    </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/Logo.webp" width="120" alt="Bubblefetch logo" />
+  <img src="site/images/Logo.webp" width="120" alt="Bubblefetch logo" />
 </p>
 <h1 align="center">bubblefetch</h1>
 <p align="center">
@@ -8,11 +8,15 @@
 </p>
 <p align="center">
   <a href="https://howieduhzit.github.io/bubblefetch/">Landing page</a> ·
-  <a href="QUICKSTART.md">Quickstart</a> ·
+  <a href="docs/README.md">Docs</a> ·
+  <a href="docs/QUICKSTART.md">Quickstart</a> ·
   <a href="#themes">Themes</a>
 </p>
 <p align="center">
-  <img src="images/Banner.webp" alt="Bubblefetch preview banner" />
+  <a href="https://buymeacoffee.com/howieduhzit">Buy me a coffee</a>
+</p>
+<p align="center">
+  <img src="site/images/Banner.webp" alt="Bubblefetch preview banner" />
 </p>
 
 ## ✨ What's New in v0.3.0
@@ -24,7 +28,7 @@
 - **🧙 Config Wizard** - Interactive TUI setup
 - **🌐 Public IP** - Optional public IP detection
 
-See [CHANGELOG.md](CHANGELOG.md) for complete details.
+See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 
 ## Features
 
@@ -45,12 +49,20 @@ See [CHANGELOG.md](CHANGELOG.md) for complete details.
 - **📊 Benchmark Mode**: Measure collection performance
 - **⚙️ Highly Customizable**: YAML config, custom themes, modular system info display
 
+## Documentation
+
+- Start here: [docs/README.md](docs/README.md)
+- Quick setup: [docs/QUICKSTART.md](docs/QUICKSTART.md)
+- Examples: [docs/EXAMPLES.md](docs/EXAMPLES.md)
+- Plugins: [docs/PLUGINS.md](docs/PLUGINS.md)
+- Performance: [docs/PERFORMANCE.md](docs/PERFORMANCE.md)
+
 ## Installation
 
 ### Quick Install
 
 ```bash
-git clone https://github.com/yourusername/bubblefetch.git
+git clone https://github.com/howieduhzit/bubblefetch.git
 cd bubblefetch
 ./install.sh
 ```
@@ -64,7 +76,7 @@ The install script will:
 ### Manual Installation
 
 ```bash
-git clone https://github.com/yourusername/bubblefetch.git
+git clone https://github.com/howieduhzit/bubblefetch.git
 cd bubblefetch
 go build -ldflags="-s -w" -o bubblefetch ./cmd/bubblefetch
 sudo mv bubblefetch /usr/local/bin/
@@ -73,7 +85,7 @@ sudo mv bubblefetch /usr/local/bin/
 ### Go Install
 
 ```bash
-go install github.com/yourusername/bubblefetch/cmd/bubblefetch@latest
+go install github.com/howieduhzit/bubblefetch/cmd/bubblefetch@latest
 ```
 
 ## Quick Start
@@ -82,7 +94,7 @@ New to bubblefetch? Get started in 60 seconds:
 
 ```bash
 # 1. Install bubblefetch
-git clone https://github.com/yourusername/bubblefetch.git
+git clone https://github.com/howieduhzit/bubblefetch.git
 cd bubblefetch
 ./install.sh
 
@@ -100,7 +112,7 @@ bubblefetch --theme nord
 bubblefetch --image-export png --image-output my-setup.png
 ```
 
-That's it! See [QUICKSTART.md](QUICKSTART.md) for more detailed guidance.
+That's it! See [docs/QUICKSTART.md](docs/QUICKSTART.md) for more detailed guidance.
 
 ## Usage
 
@@ -188,14 +200,15 @@ modules:
 - See `docs/PLUGINS.md` for complete guide
 - Examples in `plugins/examples/`
 - Platform support: Linux, macOS, FreeBSD (not Windows)
+- Browse available plugins on the landing page plugin store
 
 Quick example:
 ```go
 package main
 
 import (
-    "github.com/yourusername/bubblefetch/internal/collectors"
-    "github.com/yourusername/bubblefetch/internal/ui/theme"
+    "github.com/howieduhzit/bubblefetch/internal/collectors"
+    "github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 var ModuleName = "hello"
@@ -440,7 +453,24 @@ bubblefetch/
 │   └── examples/             # Example plugins (hello.go)
 ├── themes/                   # Built-in theme files (8 themes)
 ├── docs/                     # Documentation
-│   └── PLUGINS.md           # Plugin development guide
+│   ├── README.md             # Documentation index
+│   ├── CHANGELOG.md          # Version history
+│   ├── EXAMPLES.md           # Usage examples
+│   ├── PERFORMANCE.md        # Performance notes
+│   ├── QUICKSTART.md         # 60-second setup
+│   ├── ROADMAP.md            # Planned improvements
+│   └── PLUGINS.md            # Plugin development guide
+├── examples/
+│   └── exports/              # Sample export outputs
+│       ├── bubblefetch.html
+│       └── bubblefetch.svg
+├── site/                     # GitHub Pages site
+│   ├── index.html
+│   ├── site.webmanifest
+│   ├── favicon-32x32.png
+│   └── images/
+│       ├── Banner.webp
+│       └── Logo.webp
 └── config.example.yaml       # Example configuration
 ```
 

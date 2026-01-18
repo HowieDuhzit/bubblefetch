@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/yourusername/bubblefetch/internal/config"
+	"github.com/howieduhzit/bubblefetch/internal/config"
 )
 
 type step int

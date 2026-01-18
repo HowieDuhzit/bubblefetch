@@ -1,4 +1,4 @@
-module github.com/yourusername/bubblefetch
+module github.com/howieduhzit/bubblefetch
 
 go 1.25.5
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"gopkg.in/yaml.v3"
-	"github.com/yourusername/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
 )
 
 // ToJSON exports system info as JSON

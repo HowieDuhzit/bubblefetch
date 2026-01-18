@@ -19,7 +19,7 @@ All notable changes to bubblefetch will be documented in this file.
   - Full access to system info and theme styles
   - Example hello plugin included in `plugins/examples/`
   - Makefile targets for building plugins (`make plugin-hello`)
-  - Comprehensive documentation in `docs/PLUGINS.md`
+  - Comprehensive documentation in `PLUGINS.md`
   - Platform support: Linux, macOS, FreeBSD (not Windows)
 
 - **Interactive Config Wizard**: TUI wizard for easy configuration

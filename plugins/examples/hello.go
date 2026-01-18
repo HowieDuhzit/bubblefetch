@@ -6,8 +6,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 // ModuleName is the name of this plugin module

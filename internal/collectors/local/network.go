@@ -3,7 +3,7 @@ package local
 import (
 	"net"
 
-	"github.com/yourusername/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
 )
 
 // detectNetwork gathers network interface information

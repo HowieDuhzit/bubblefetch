@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"golang.org/x/crypto/ssh"
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/config"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/config"
 )
 
 type SSHCollector struct {

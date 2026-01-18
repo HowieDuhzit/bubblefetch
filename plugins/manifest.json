@@ -1,0 +1,12 @@
+[
+  {
+    "id": "hello",
+    "name": "Hello",
+    "version": "0.1.0",
+    "description": "Sample greeting module for validating plugin loading.",
+    "platforms": ["linux", "darwin", "freebsd"],
+    "download": "https://raw.githubusercontent.com/howieduhzit/bubblefetch/main/plugins/hello.so",
+    "source": "https://github.com/howieduhzit/bubblefetch/blob/main/plugins/examples/hello.go",
+    "docs": "https://github.com/howieduhzit/bubblefetch/blob/main/docs/PLUGINS.md"
+  }
+]

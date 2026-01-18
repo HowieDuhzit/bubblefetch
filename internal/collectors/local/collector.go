@@ -10,7 +10,7 @@ import (
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/mem"
-	"github.com/yourusername/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
 )
 
 type LocalCollector struct {

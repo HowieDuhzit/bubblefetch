@@ -6,12 +6,12 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/collectors/local"
-	"github.com/yourusername/bubblefetch/internal/collectors/remote"
-	"github.com/yourusername/bubblefetch/internal/config"
-	"github.com/yourusername/bubblefetch/internal/ui/modules"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/collectors/local"
+	"github.com/howieduhzit/bubblefetch/internal/collectors/remote"
+	"github.com/howieduhzit/bubblefetch/internal/config"
+	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 type Model struct {

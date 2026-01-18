@@ -24,8 +24,8 @@ Create a file `myplugin.go`:
 package main
 
 import (
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 // ModuleName must be a package-level variable named exactly "ModuleName"
@@ -70,6 +70,12 @@ modules:
 ```
 
 Run bubblefetch and your plugin will appear in the TUI!
+
+## Plugin Registry
+
+The GitHub Pages site reads `plugins/manifest.json` to list plugins in the
+browser. Add new plugins by updating the manifest with a name, description,
+and download/source URLs.
 
 ## Plugin API
 
@@ -160,8 +166,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 var ModuleName = "hello"
@@ -185,8 +191,8 @@ package main
 import (
 	"fmt"
 	"runtime"
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 var ModuleName = "cores"
@@ -210,8 +216,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 var ModuleName = "myinfo"

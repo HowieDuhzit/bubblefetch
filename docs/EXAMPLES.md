@@ -2,6 +2,8 @@
 
 This document showcases various ways to use bubblefetch.
 
+Sample export outputs live in `examples/exports/` (HTML and SVG).
+
 ### Basic Display
 
 ```bash
@@ -168,7 +170,7 @@ jobs:
         uses: actions/setup-go@v2
       - name: Install bubblefetch
         run: |
-          git clone https://github.com/yourusername/bubblefetch.git
+          git clone https://github.com/howieduhzit/bubblefetch.git
           cd bubblefetch && ./install.sh
       - name: Capture specs
         run: bubblefetch --export json > runner-specs.json

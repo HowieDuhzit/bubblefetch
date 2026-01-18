@@ -2,10 +2,12 @@
 
 Get bubblefetch up and running in 60 seconds!
 
+Need more detail? Start at `docs/README.md`.
+
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/bubblefetch.git
+git clone https://github.com/howieduhzit/bubblefetch.git
 cd bubblefetch
 ./install.sh
 ```
@@ -124,5 +126,5 @@ cd bubblefetch
 
 ## Get Help
 
-- GitHub Issues: https://github.com/yourusername/bubblefetch/issues
+- GitHub Issues: https://github.com/howieduhzit/bubblefetch/issues
 - Run: `bubblefetch --help`

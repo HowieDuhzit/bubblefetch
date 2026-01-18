@@ -1,8 +1,8 @@
 package modules
 
 import (
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 type PublicIPModule struct{}

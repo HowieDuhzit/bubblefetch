@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	"github.com/fogleman/gg"
-	"github.com/yourusername/bubblefetch/internal/collectors"
-	"github.com/yourusername/bubblefetch/internal/config"
-	"github.com/yourusername/bubblefetch/internal/ui/modules"
-	"github.com/yourusername/bubblefetch/internal/ui/theme"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/config"
+	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 
 // ImageExporter handles exporting system info as images

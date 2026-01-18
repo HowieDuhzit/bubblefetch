@@ -1,215 +1,47 @@
-# Performance Optimizations
+# Performance Notes
 
-## Latest Improvements (v0.2.1)
+Bubblefetch is built for speed with parallel collection, minimal external commands,
+and targeted caching. This document captures benchmark results and key optimizations.
 
-### Problem
-Users reported slowness when running the TUI, despite benchmark showing fast collection (~7.5ms).
+## Benchmarks
 
-### Root Causes Identified
-1. **lspci command**: Running external `lspci` command for GPU detection was slow (~5-6ms)
-2. **OS Detection**: Reading `/etc/os-release` multiple times (once per theme load)
-3. **No caching**: OS detection and theme loading happened on every run
+Quick comparison:
 
-### Solutions Implemented
-
-#### 1. GPU Detection Optimization
-**Before:** Always ran `lspci` command first
-```go
-if output, err := exec.Command("lspci").Output(); err == nil {
-    // Parse output...
-}
+```bash
+time ./bubblefetch --export text > /dev/null   # ~0.003s
+time neofetch > /dev/null                      # ~0.350s
+time fastfetch > /dev/null                     # ~0.012s
 ```
 
-**After:** Try `/sys/class/drm` first (much faster), only fall back to lspci with timeout
-```go
-// Read from /sys/class/drm first (instant)
-if entries, err := os.ReadDir(drmPath); err == nil {
-    // Parse from /sys...
-}
+Example benchmark output:
 
-// Fall back to lspci with 500ms timeout only if needed
-ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-defer cancel()
-cmd := exec.CommandContext(ctx, "lspci")
 ```
-
-**Impact:** 5-6ms faster when `/sys` works (most Linux systems)
-
-#### 2. OS Detection Caching
-**Before:** Read `/etc/os-release` on every theme load
-```go
-func DetectOS() string {
-    data, _ := os.ReadFile("/etc/os-release")
-    // Parse...
-}
-```
-
-**After:** Cache result using `sync.Once`
-```go
-var (
-    detectedOSCache     string
-    detectedOSCacheOnce sync.Once
-)
-
-func DetectOS() string {
-    detectedOSCacheOnce.Do(func() {
-        detectedOSCache = detectOSInternal()
-    })
-    return detectedOSCache
-}
-```
-
-**Impact:** ~0.5ms faster on subsequent calls
-
-#### 3. Vendor ID Mapping
-Added common GPU vendor ID mapping to avoid lspci entirely:
-```go
-switch vendor {
-case "10DE": vendorName = "NVIDIA"
-case "1002": vendorName = "AMD"
-case "8086": vendorName = "Intel"
-}
-```
-
-### Results
-
-#### Benchmark Comparison
-```
-Before optimizations:
-Average: 7.57ms
-Total: 75.71ms (10 runs)
-
-After optimizations:
+Running 10 iterations...
 Average: 1.34ms
-Total: 13.42ms (10 runs)
-
-Improvement: 5.6x faster (82% reduction)
+Total: 13.42ms
 ```
 
-#### Real-world Impact
-- **Startup time**: Sub-second even with all modules
-- **TUI responsiveness**: Instant display
-- **Export operations**: Near-instantaneous
-- **Remote SSH**: Minimal local overhead
+## Why it is fast
 
-### Performance Breakdown
+- Parallel goroutines for independent metrics.
+- /proc and /sys reads instead of shelling out.
+- Cached OS detection and theme lookups.
+- GPU detection prefers `/sys/class/drm`, with a short fallback timeout.
 
-Current timing breakdown (average):
-```
-Environment variables:    <0.1ms  (instant)
-/sys filesystem reads:     0.3ms  (GPU, battery, etc.)
-gopsutil calls:           0.8ms  (CPU, memory, disk)
-Network interfaces:       0.2ms  (net package)
-Total:                    ~1.3ms
-```
+## Optimization highlights
 
-### Best Practices Applied
+- GPU vendor mapping avoids unnecessary `lspci` calls.
+- OS detection cached with `sync.Once`.
+- Theme loading avoids repeated disk reads.
 
-1. **Avoid exec.Command when possible**
-   - Use `/sys` and `/proc` filesystem reads instead
-   - Significantly faster than spawning processes
+## How to test locally
 
-2. **Cache expensive operations**
-   - OS detection only happens once
-   - Theme loading cached
-   - Use `sync.Once` for thread-safe initialization
-
-3. **Timeout external commands**
-   - All exec.Command calls have context timeouts
-   - Prevents hanging on slow systems
-
-4. **Parallel collection**
-   - All metrics gathered concurrently via goroutines
-   - No blocking on slow operations
-
-5. **Lazy evaluation**
-   - GPU detection only runs if GPU module is enabled
-   - Battery detection skipped if no battery present
-
-### Future Optimizations
-
-Potential areas for further improvement:
-- [ ] Pre-compile PCI ID database into binary
-- [ ] Use mmap for large file reads
-- [ ] Implement metric sampling/throttling for real-time mode
-- [ ] Add compilation flags for unused modules
-
-### Comparison with Alternatives
-
-Performance compared to similar tools:
-```
-bubblefetch:    1.3ms  (this tool)
-fastfetch:     ~10ms  (compiled, optimized)
-neofetch:    ~300ms  (bash script)
-screenfetch: ~400ms  (bash script)
-```
-
-**bubblefetch is now the fastest system info tool available.**
-
-### Testing Performance
-
-Run benchmark yourself:
 ```bash
+go build -ldflags="-s -w" -o bubblefetch ./cmd/bubblefetch
 ./bubblefetch --benchmark
+time ./bubblefetch --export text > /dev/null
 ```
 
-Compare with other tools:
-```bash
-echo "=== bubblefetch ===" && time ./bubblefetch --export text > /dev/null
-echo "=== neofetch ===" && time neofetch > /dev/null
-echo "=== fastfetch ===" && time fastfetch > /dev/null
-```
+## Sample test environment
 
-### Performance Tips
-
-1. **Disable unused modules** in config to save time:
-   ```yaml
-   modules:
-     - os
-     - cpu
-     - memory
-   # Remove modules you don't need
-   ```
-
-2. **Use export mode** for automation (faster than TUI):
-   ```bash
-   bubblefetch --export json
-   ```
-
-3. **Run benchmark** to verify your system's performance:
-   ```bash
-   bubblefetch --benchmark
-   ```
-
-### Technical Details
-
-#### Why /sys is faster than lspci
-- `/sys` is a virtual filesystem - no disk I/O
-- Direct kernel data structures
-- No process spawning overhead
-- No parsing of text output
-
-#### Why caching matters
-- OS detection: ~0.5ms saved per call
-- Multiplied by theme loading frequency
-- Zero-cost after first call
-
-#### Goroutine efficiency
-- Lightweight threads (2KB stack)
-- No context switching overhead
-- Concurrent I/O operations
-- Wait group synchronization
-
-### Profiling
-
-To profile bubblefetch yourself:
-```bash
-go test -cpuprofile cpu.prof -memprofile mem.prof -bench .
-go tool pprof cpu.prof
-```
-
-View top time consumers:
-```
-(pprof) top10
-(pprof) list <function_name>
-```
+Recorded on Arch Linux (i9-13900KF, RTX 3060 Ti), optimized build size ~6.2MB.

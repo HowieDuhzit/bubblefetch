@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yourusername/bubblefetch/internal/collectors"
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
 )
 
 // detectBattery attempts to detect battery information on Linux
