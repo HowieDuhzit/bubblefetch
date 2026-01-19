@@ -325,9 +325,9 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 		"kernel":   "uname -r",
 		"hostname": "hostname",
 		"uptime":   "cat /proc/uptime 2>/dev/null || uptime",
-		"cpu":      "cat /proc/cpuinfo 2>/dev/null | grep 'model name' | head -1 | cut -d: -f2 | xargs",
-		"memory":   "cat /proc/meminfo 2>/dev/null | grep -E 'MemTotal|MemAvailable'",
-		"disk":     "df -B1 / 2>/dev/null | tail -1",
+		"cpu":      "awk -F: '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null | xargs",
+		"memory":   "awk '/MemTotal|MemAvailable/ {print}' /proc/meminfo 2>/dev/null",
+		"disk":     "df -B1 / 2>/dev/null | awk 'NR==2 {print}'",
 		"shell":    "echo $SHELL",
 		"term":     "echo $TERM",
 		"de":       "echo $XDG_CURRENT_DESKTOP",
@@ -350,8 +350,13 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 	results := make(map[string]string)
 	for i := 0; i < len(commands); i++ {
 		result := <-resultChan
+		output := strings.TrimSpace(result.output)
+		if output != "" {
+			results[result.name] = output
+			continue
+		}
 		if result.err == nil {
-			results[result.name] = strings.TrimSpace(result.output)
+			results[result.name] = output
 		}
 	}
 
