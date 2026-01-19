@@ -21,6 +21,7 @@ import (
 	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
 	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 	"github.com/howieduhzit/bubblefetch/internal/whois"
+	"github.com/mattn/go-runewidth"
 )
 
 var (
@@ -52,6 +53,7 @@ var (
 )
 
 const Version = "0.3.0"
+const whoisValueMaxWidth = 72
 
 func main() {
 	flag.Usage = func() {
@@ -382,7 +384,7 @@ func formatWhois(result whois.Result, thm *theme.Theme) string {
 	b.WriteString("\n")
 	b.WriteString(styles.Label.Render(icon("󰮱 ") + "Target"))
 	b.WriteString(separator)
-	b.WriteString(styles.Value.Render(result.Target))
+	b.WriteString(styles.Value.Render(truncateWhoisValue(result.Target)))
 	b.WriteString("\n\n")
 
 	b.WriteString(subhead.Render(icon("󰌪 ") + "WHOIS"))
@@ -395,7 +397,7 @@ func formatWhois(result whois.Result, thm *theme.Theme) string {
 			b.WriteString("  ")
 			b.WriteString(styles.Label.Render(field.Label))
 			b.WriteString(separator)
-			b.WriteString(styles.Value.Render(field.Value))
+			b.WriteString(styles.Value.Render(truncateWhoisValue(field.Value)))
 			b.WriteString("\n")
 		}
 	}
@@ -417,7 +419,7 @@ func formatWhois(result whois.Result, thm *theme.Theme) string {
 		b.WriteString(":\n")
 		for _, record := range result.DNS.TXT {
 			b.WriteString("    - ")
-			b.WriteString(styles.Value.Render(record))
+			b.WriteString(styles.Value.Render(truncateWhoisValue(record)))
 			b.WriteString("\n")
 		}
 	}
@@ -440,7 +442,7 @@ func writeLine(b *strings.Builder, styles theme.Styles, separator, label, value 
 	b.WriteString("  ")
 	b.WriteString(styles.Label.Render(label))
 	b.WriteString(separator)
-	b.WriteString(styles.Value.Render(value))
+	b.WriteString(styles.Value.Render(truncateWhoisValue(value)))
 	b.WriteString("\n")
 }
 
@@ -449,4 +451,26 @@ func writeList(b *strings.Builder, styles theme.Styles, separator, label string,
 		return
 	}
 	writeLine(b, styles, separator, label, strings.Join(values, ", "))
+}
+
+func truncateWhoisValue(value string) string {
+	if runewidth.StringWidth(value) <= whoisValueMaxWidth {
+		return value
+	}
+	if whoisValueMaxWidth <= 3 {
+		return strings.Repeat(".", whoisValueMaxWidth)
+	}
+
+	var b strings.Builder
+	width := 0
+	for _, r := range value {
+		w := runewidth.RuneWidth(r)
+		if width+w > whoisValueMaxWidth-3 {
+			break
+		}
+		b.WriteRune(r)
+		width += w
+	}
+	b.WriteString("...")
+	return b.String()
 }
