@@ -2,10 +2,12 @@ package modules
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/howieduhzit/bubblefetch/internal/collectors"
 	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
+	"github.com/mattn/go-runewidth"
 )
 
 // Module represents a displayable system information module
@@ -98,7 +100,25 @@ func truncateValue(value string, maxWidth int) string {
 	if maxWidth <= 0 {
 		return value
 	}
-	return lipgloss.Truncate(value, maxWidth)
+	if runewidth.StringWidth(value) <= maxWidth {
+		return value
+	}
+	if maxWidth <= 3 {
+		return strings.Repeat(".", maxWidth)
+	}
+
+	var b strings.Builder
+	width := 0
+	for _, r := range value {
+		w := runewidth.RuneWidth(r)
+		if width+w > maxWidth-3 {
+			break
+		}
+		b.WriteRune(r)
+		width += w
+	}
+	b.WriteString("...")
+	return b.String()
 }
 
 var labelIcons = map[string]string{
