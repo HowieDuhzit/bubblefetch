@@ -8,7 +8,6 @@ import (
 	"github.com/howieduhzit/bubblefetch/internal/collectors/local"
 	"github.com/howieduhzit/bubblefetch/internal/collectors/remote"
 	"github.com/howieduhzit/bubblefetch/internal/config"
-	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
 	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 )
 

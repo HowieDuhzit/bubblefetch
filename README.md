@@ -3,8 +3,14 @@
 </p>
 <h1 align="center">bubblefetch</h1>
 <p align="center">
-  A simple, elegant, and highly customizable system information tool built with Go and Bubbletea.
-  An alternative to neofetch/fastfetch with beautiful TUI, extensive theming, and remote system support.
+  A fast, themeable system info tool built with Go and Bubbletea.
+  An alternative to neofetch/fastfetch with styled terminal output, remote support, and exports.
+</p>
+<p align="center">
+  <a href="https://github.com/howieduhzit/bubblefetch/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/howieduhzit/bubblefetch?display_name=tag&style=flat-square" /></a>
+  <a href="https://aur.archlinux.org/packages/bubblefetch-git"><img alt="AUR" src="https://img.shields.io/aur/version/bubblefetch-git?style=flat-square" /></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" /></a>
+  <img alt="Go" src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square" />
 </p>
 <p align="center">
   <a href="https://howieduhzit.github.io/bubblefetch/">Landing page</a> ·
@@ -18,6 +24,17 @@
 <p align="center">
   <img src="site/images/Banner.webp" alt="Bubblefetch preview banner" />
 </p>
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Themes](#themes)
+- [Modules](#modules)
+- [Command-Line Reference](#command-line-reference)
+- [License](#license)
 
 ## ✨ What's New in v0.3.0
 
@@ -34,17 +51,18 @@ See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 
 ### Core Features
 - **⚡ Blazing Fast**: Average 1.2ms collection time - **100x faster than neofetch, 8x faster than fastfetch**
-- **Beautiful TUI**: Built with Bubbletea and Lipgloss for elegant terminal UI
+- **Styled Output**: Themed, framed terminal output with Nerd Font icons
 - **OS Detection**: Automatically detects your OS/distro and displays appropriate ASCII art
 - **Comprehensive Info**: CPU, GPU, memory, disk, network, battery, local IP, and more
 - **Themeable**: 8 built-in themes with easy custom theme creation
 
 ### Advanced Features
 - **🔌 Plugin System**: Extend with custom modules using Go plugins (.so files)
-- **🧙 Interactive Config Wizard**: TUI-guided setup with theme preview and module selection
+- **🧙 Interactive Config Wizard**: Guided setup with theme preview and module selection
 - **🖼️ Image Export**: Export as PNG (raster), SVG (vector), or HTML (webpage)
 - **🌐 Public IP Detection**: Optional public IP display (privacy-first, disabled by default)
 - **🌍 SSH Remote Support**: Fetch system info from remote systems via SSH
+- **🔎 Domain Scan**: WHOIS + DNS lookup via `--who`
 - **📤 Export Modes**: Export to JSON, YAML, or plain text
 - **📊 Benchmark Mode**: Measure collection performance
 - **⚙️ Highly Customizable**: YAML config, custom themes, modular system info display
@@ -61,9 +79,7 @@ See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 
 ### Release Binaries
 
-Download from GitHub Releases:
-
-https://github.com/howieduhzit/bubblefetch/releases/latest
+- https://github.com/howieduhzit/bubblefetch/releases/latest
 
 ### Arch Linux (AUR)
 
@@ -71,9 +87,10 @@ https://github.com/howieduhzit/bubblefetch/releases/latest
 yay -S bubblefetch-git
 ```
 
-AUR package: https://aur.archlinux.org/packages/bubblefetch-git
+AUR package: https://aur.archlinux.org/packages/bubblefetch-git  
+Installs the `bf` alias alongside `bubblefetch`.
 
-### Quick Install
+### Quick Install (recommended)
 
 ```bash
 git clone https://github.com/howieduhzit/bubblefetch.git
@@ -81,13 +98,14 @@ cd bubblefetch
 ./install.sh
 ```
 
-The install script will:
-- Build the optimized binary
-- Install to `/usr/local/bin`
-- Create config directory at `~/.config/bubblefetch`
-- Copy themes and example config
+This script:
+- Builds the optimized binary
+- Installs to `/usr/local/bin`
+- Creates `~/.config/bubblefetch`
+- Copies themes + example config
 
-### Manual Installation
+<details>
+<summary>Manual install</summary>
 
 ```bash
 git clone https://github.com/howieduhzit/bubblefetch.git
@@ -95,12 +113,15 @@ cd bubblefetch
 go build -ldflags="-s -w" -o bubblefetch ./cmd/bubblefetch
 sudo mv bubblefetch /usr/local/bin/
 ```
+</details>
 
-### Go Install
+<details>
+<summary>Go install</summary>
 
 ```bash
 go install github.com/howieduhzit/bubblefetch/cmd/bubblefetch@latest
 ```
+</details>
 
 ## Quick Start
 
@@ -116,14 +137,14 @@ cd bubblefetch
 bubblefetch --config-wizard
 
 # 3. Run bubblefetch!
-bubblefetch
+bf
 
 # 4. Try different themes
-bubblefetch --theme dracula
-bubblefetch --theme nord
+bf --theme dracula
+bf --theme nord
 
 # 5. Export your setup
-bubblefetch --image-export png --image-output my-setup.png
+bf -o my-setup.png
 ```
 
 That's it! See [docs/QUICKSTART.md](docs/QUICKSTART.md) for more detailed guidance.
@@ -136,6 +157,9 @@ That's it! See [docs/QUICKSTART.md](docs/QUICKSTART.md) for more detailed guidan
 # Run with default settings
 bubblefetch
 
+# Short alias
+bf
+
 # Use a specific theme
 bubblefetch --theme dracula
 
@@ -144,6 +168,7 @@ bubblefetch --config ~/.config/bubblefetch/custom.yaml
 ```
 
 Tip: Use a Nerd Font in your terminal to see module icons.
+Note: bubblefetch prints once and exits (no interactive TUI).
 
 ### Remote Systems (SSH)
 
@@ -153,6 +178,13 @@ bubblefetch --remote user@hostname
 
 # Uses your SSH config and keys automatically
 bubblefetch --remote myserver
+```
+
+### Domain Scan
+
+```bash
+bf --who google.com
+bf --who google.com -R
 ```
 
 ### Export Modes

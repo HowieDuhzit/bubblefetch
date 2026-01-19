@@ -485,15 +485,17 @@
 
       <section class="hero">
         <div>
-          <h1 class="fade-in">Fast system info with a calm, polished TUI.</h1>
+          <h1 class="fade-in">Fast system info with a calm, polished terminal view.</h1>
           <p class="fade-in delay-1">
             Bubblefetch is a Go-powered alternative to neofetch/fastfetch that
-            blends lightning-fast collection with gorgeous Bubbletea visuals.
+            blends lightning-fast collection with gorgeous themed output.
           </p>
           <div class="hero meta fade-in delay-2">
             <div class="chip">1.3ms average collection</div>
             <div class="chip">Remote SSH support</div>
             <div class="chip">Themeable UI</div>
+            <div class="chip">One-shot output</div>
+            <div class="chip">WHOIS + DNS scan</div>
           </div>
           <div style="margin-top: 24px" class="fade-in delay-3">
             <a class="cta" href="https://github.com/howieduhzit/bubblefetch#readme"
@@ -534,6 +536,10 @@
             Pull stats over SSH with your existing config.
           </div>
           <div class="card">
+            <h3>Domain scan</h3>
+            WHOIS + DNS lookup built right in.
+          </div>
+          <div class="card">
             <h3>Theme engine</h3>
             Ship with built-in themes or add your own.
           </div>
@@ -548,6 +554,9 @@
             git clone https://github.com/howieduhzit/bubblefetch.git<br />
             cd bubblefetch<br />
             make run
+          </div>
+          <div class="mono" style="margin-top: 16px">
+            bf --help
           </div>
           <div class="mono" style="margin-top: 16px">
             yay -S bubblefetch-git
