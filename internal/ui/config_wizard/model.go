@@ -2,6 +2,9 @@ package config_wizard
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -30,6 +33,7 @@ type Model struct {
 	// Available options
 	themes  []string
 	modules []string
+	plugins []string
 
 	// Styles
 	titleStyle      lipgloss.Style
@@ -71,7 +75,9 @@ func NewModel() Model {
 			"localip",
 			"publicip",
 			"battery",
+			"costs",
 		},
+		plugins: []string{},
 
 		titleStyle:      lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#89b4fa")).MarginBottom(1),
 		selectedStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("#a6e3a1")).Bold(true),
@@ -265,7 +271,17 @@ func (m Model) viewPlugins() string {
 
 	b.WriteString(m.unselectedStyle.Render(fmt.Sprintf("Plugins will be loaded from:\n%s\n\n", pluginDir)))
 	b.WriteString(m.unselectedStyle.Render("You can change this later by editing config.yaml\n"))
-	b.WriteString(m.unselectedStyle.Render("See docs/PLUGINS.md for plugin development guide."))
+	b.WriteString(m.unselectedStyle.Render("See docs/PLUGINS.md for plugin development guide.\n\n"))
+
+	if len(m.plugins) == 0 {
+		b.WriteString(m.unselectedStyle.Render("Detected plugins: none\n"))
+	} else {
+		b.WriteString(m.unselectedStyle.Render("Detected plugins:\n"))
+		for _, plugin := range m.plugins {
+			b.WriteString(m.unselectedStyle.Render("  • " + plugin))
+			b.WriteString("\n")
+		}
+	}
 
 	b.WriteString(m.helpStyle.Render("\n\nenter: continue • q: quit"))
 	b.WriteString(m.renderProgress())
@@ -355,6 +371,7 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 		m.cursor = 0
 
 	case stepPrivacy:
+		m.plugins = detectPlugins(m.config.PluginDir)
 		m.step = stepPlugins
 		m.cursor = 0
 
@@ -375,6 +392,52 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+func detectPlugins(pluginDir string) []string {
+	if pluginDir == "" {
+		home, err := os.UserHomeDir()
+		if err == nil {
+			pluginDir = filepath.Join(home, ".config", "bubblefetch", "plugins")
+		}
+	}
+
+	var plugins []string
+	entries, err := os.ReadDir(pluginDir)
+	if err != nil {
+		return nil
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if filepath.Ext(entry.Name()) == ".so" {
+			plugins = append(plugins, strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name())))
+		}
+	}
+
+	externalDir := filepath.Join(pluginDir, "external")
+	externalEntries, err := os.ReadDir(externalDir)
+	if err == nil {
+		for _, entry := range externalEntries {
+			if entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
+				continue
+			}
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			if info.Mode()&0111 == 0 {
+				continue
+			}
+			name := strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))
+			plugins = append(plugins, name)
+		}
+	}
+
+	sort.Strings(plugins)
+	return plugins
 }
 
 func (m Model) getMaxCursor() int {
