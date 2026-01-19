@@ -14,43 +14,26 @@ const (
 )
 
 // Lookup performs a WHOIS lookup plus DNS record scan for a target domain.
-func Lookup(target string, includeRaw bool) (string, error) {
+func Lookup(target string, includeRaw bool) (Result, error) {
 	target = strings.TrimSpace(target)
 	if target == "" {
-		return "", fmt.Errorf("whois target is empty")
+		return Result{}, fmt.Errorf("whois target is empty")
 	}
-
-	var b strings.Builder
-	b.WriteString("Domain Scan\n")
-	b.WriteString("Target: ")
-	b.WriteString(target)
-	b.WriteString("\n\nWHOIS\n")
 
 	whoisText, err := lookupWhois(target)
 	if err != nil {
-		return "", err
+		return Result{}, err
 	}
 	parsed := parseWhois(whoisText)
-	if len(parsed.Fields) > 0 {
-		for _, field := range parsed.Fields {
-			b.WriteString("  ")
-			b.WriteString(field.Label)
-			b.WriteString(": ")
-			b.WriteString(field.Value)
-			b.WriteString("\n")
-		}
-	} else {
-		b.WriteString("  (no structured WHOIS fields found)\n")
-	}
-	b.WriteString("\n\nDNS\n")
-	b.WriteString(lookupDNS(target))
-
-	if includeRaw && parsed.Raw != "" {
-		b.WriteString("\n\nRAW WHOIS\n")
-		b.WriteString(parsed.Raw)
+	if !includeRaw {
+		parsed.Raw = ""
 	}
 
-	return b.String(), nil
+	return Result{
+		Target: target,
+		Whois:  parsed,
+		DNS:    lookupDNS(target),
+	}, nil
 }
 
 func lookupWhois(target string) (string, error) {
@@ -134,77 +117,48 @@ func queryWhois(server, query string) (string, error) {
 	return b.String(), nil
 }
 
-func lookupDNS(target string) string {
+func lookupDNS(target string) dnsResult {
 	if ip := net.ParseIP(target); ip != nil {
 		hosts, err := net.LookupAddr(target)
 		if err != nil || len(hosts) == 0 {
-			return "  PTR: (none)\n"
+			return dnsResult{PTR: []string{}}
 		}
-		return "  PTR: " + strings.Join(hosts, ", ") + "\n"
+		return dnsResult{PTR: hosts}
 	}
 
-	var b strings.Builder
+	result := dnsResult{}
 
 	if ips, err := net.LookupIP(target); err == nil && len(ips) > 0 {
-		var a []string
-		var aaaa []string
 		for _, ip := range ips {
 			if ip.To4() != nil {
-				a = append(a, ip.String())
+				result.A = append(result.A, ip.String())
 			} else {
-				aaaa = append(aaaa, ip.String())
+				result.AAAA = append(result.AAAA, ip.String())
 			}
 		}
-		if len(a) > 0 {
-			b.WriteString("  A: ")
-			b.WriteString(strings.Join(a, ", "))
-			b.WriteString("\n")
-		}
-		if len(aaaa) > 0 {
-			b.WriteString("  AAAA: ")
-			b.WriteString(strings.Join(aaaa, ", "))
-			b.WriteString("\n")
-		}
-	} else {
-		b.WriteString("  A/AAAA: (none)\n")
 	}
 
 	if cname, err := net.LookupCNAME(target); err == nil && cname != "" {
-		b.WriteString("  CNAME: ")
-		b.WriteString(cname)
-		b.WriteString("\n")
+		result.CNAME = cname
 	}
 
 	if mx, err := net.LookupMX(target); err == nil && len(mx) > 0 {
-		var records []string
 		for _, record := range mx {
-			records = append(records, fmt.Sprintf("%d %s", record.Pref, record.Host))
+			result.MX = append(result.MX, fmt.Sprintf("%d %s", record.Pref, record.Host))
 		}
-		b.WriteString("  MX: ")
-		b.WriteString(strings.Join(records, ", "))
-		b.WriteString("\n")
 	}
 
 	if ns, err := net.LookupNS(target); err == nil && len(ns) > 0 {
-		var records []string
 		for _, record := range ns {
-			records = append(records, record.Host)
+			result.NS = append(result.NS, record.Host)
 		}
-		b.WriteString("  NS: ")
-		b.WriteString(strings.Join(records, ", "))
-		b.WriteString("\n")
 	}
 
 	if txt, err := net.LookupTXT(target); err == nil && len(txt) > 0 {
-		b.WriteString("  TXT:\n")
-		for _, record := range txt {
-			b.WriteString("    - ")
-			b.WriteString(record)
-			b.WriteString("\n")
-		}
+		result.TXT = append(result.TXT, txt...)
 	}
 
-	return b.String()
+	return result
 }
 
 type whoisField struct {
@@ -215,6 +169,22 @@ type whoisField struct {
 type whoisParsed struct {
 	Fields []whoisField
 	Raw    string
+}
+
+type dnsResult struct {
+	A    []string
+	AAAA []string
+	CNAME string
+	MX   []string
+	NS   []string
+	TXT  []string
+	PTR  []string
+}
+
+type Result struct {
+	Target string
+	Whois  whoisParsed
+	DNS    dnsResult
 }
 
 func parseWhois(raw string) whoisParsed {

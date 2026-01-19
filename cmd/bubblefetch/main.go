@@ -9,6 +9,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/howieduhzit/bubblefetch/internal/collectors"
 	"github.com/howieduhzit/bubblefetch/internal/collectors/local"
 	"github.com/howieduhzit/bubblefetch/internal/collectors/remote"
@@ -18,6 +19,7 @@ import (
 	"github.com/howieduhzit/bubblefetch/internal/ui"
 	"github.com/howieduhzit/bubblefetch/internal/ui/config_wizard"
 	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
+	"github.com/howieduhzit/bubblefetch/internal/ui/theme"
 	"github.com/howieduhzit/bubblefetch/internal/whois"
 )
 
@@ -338,11 +340,107 @@ func runImageExport(cfg *config.Config) {
 }
 
 func runWhois(target string, includeRaw bool) {
+	cfg, _ := config.Load(*configPath)
+	if cfg == nil {
+		cfg = config.NewDefault()
+	}
+	if *themeName != "" {
+		cfg.Theme = *themeName
+	}
+
+	thm, err := theme.Load(cfg.Theme)
+	if err != nil {
+		thm, _ = theme.Load("default")
+	}
+
 	result, err := whois.Lookup(target, includeRaw)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println(result)
+	fmt.Println(formatWhois(result, thm))
+}
+
+func formatWhois(result whois.Result, thm *theme.Theme) string {
+	styles := thm.GetStyles()
+	header := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(thm.Colors.Accent))
+	subhead := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(thm.Colors.Primary))
+	separator := styles.Separator.Render(": ")
+	icon := func(value string) string {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color(thm.Colors.Secondary)).Render(value)
+	}
+
+	var b strings.Builder
+	b.WriteString(header.Render(icon("󰗇 ") + "Domain Scan"))
+	b.WriteString("\n")
+	b.WriteString(styles.Label.Render(icon("󰮱 ") + "Target"))
+	b.WriteString(separator)
+	b.WriteString(styles.Value.Render(result.Target))
+	b.WriteString("\n\n")
+
+	b.WriteString(subhead.Render(icon("󰌪 ") + "WHOIS"))
+	b.WriteString("\n")
+	if len(result.Whois.Fields) == 0 {
+		b.WriteString(styles.Value.Render("  (no structured WHOIS fields found)"))
+		b.WriteString("\n")
+	} else {
+		for _, field := range result.Whois.Fields {
+			b.WriteString("  ")
+			b.WriteString(styles.Label.Render(field.Label))
+			b.WriteString(separator)
+			b.WriteString(styles.Value.Render(field.Value))
+			b.WriteString("\n")
+		}
+	}
+
+	b.WriteString("\n")
+	b.WriteString(subhead.Render(icon("󰇋 ") + "DNS"))
+	b.WriteString("\n")
+	writeList(&b, styles, separator, "A", result.DNS.A)
+	writeList(&b, styles, separator, "AAAA", result.DNS.AAAA)
+	if result.DNS.CNAME != "" {
+		writeLine(&b, styles, separator, "CNAME", result.DNS.CNAME)
+	}
+	writeList(&b, styles, separator, "MX", result.DNS.MX)
+	writeList(&b, styles, separator, "NS", result.DNS.NS)
+	writeList(&b, styles, separator, "PTR", result.DNS.PTR)
+	if len(result.DNS.TXT) > 0 {
+		b.WriteString("  ")
+		b.WriteString(styles.Label.Render("TXT"))
+		b.WriteString(":\n")
+		for _, record := range result.DNS.TXT {
+			b.WriteString("    - ")
+			b.WriteString(styles.Value.Render(record))
+			b.WriteString("\n")
+		}
+	}
+
+	if result.Whois.Raw != "" {
+		b.WriteString("\n")
+		b.WriteString(subhead.Render(icon("󰡯 ") + "RAW WHOIS"))
+		b.WriteString("\n")
+		b.WriteString(result.Whois.Raw)
+		b.WriteString("\n")
+	}
+
+	return styles.Border.Render(b.String())
+}
+
+func writeLine(b *strings.Builder, styles theme.Styles, separator, label, value string) {
+	if value == "" {
+		return
+	}
+	b.WriteString("  ")
+	b.WriteString(styles.Label.Render(label))
+	b.WriteString(separator)
+	b.WriteString(styles.Value.Render(value))
+	b.WriteString("\n")
+}
+
+func writeList(b *strings.Builder, styles theme.Styles, separator, label string, values []string) {
+	if len(values) == 0 {
+		return
+	}
+	writeLine(b, styles, separator, label, strings.Join(values, ", "))
 }
