@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"strings"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -90,46 +88,7 @@ func (m Model) View() string {
 		return m.styles.Value.Render("Error: " + m.err.Error())
 	}
 
-	var content strings.Builder
-
-	// Render ASCII art if enabled
-	var asciiArt string
-	if m.theme.Layout.ShowASCII {
-		asciiArt = m.styles.ASCII.Render(m.theme.ASCII)
-	}
-
-	// Render modules
-	var moduleLines []string
-	for _, moduleName := range m.config.Modules {
-		module := modules.Factory(moduleName)
-		if module == nil {
-			continue
-		}
-		rendered := module.Render(m.sysInfo, m.styles)
-		if rendered != "" {
-			moduleLines = append(moduleLines, rendered)
-		}
-	}
-
-	moduleContent := strings.Join(moduleLines, "\n")
-
-	// Combine ASCII and modules side by side if ASCII is enabled
-	if m.theme.Layout.ShowASCII && asciiArt != "" {
-		content.WriteString(lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			asciiArt,
-			strings.Repeat(" ", m.theme.Layout.Padding),
-			moduleContent,
-		))
-	} else {
-		content.WriteString(moduleContent)
-	}
-
-	// Apply border if configured
-	result := m.styles.Container.Render(content.String())
-	if m.theme.Layout.BorderStyle != "none" && m.theme.Layout.BorderStyle != "" {
-		result = m.styles.Border.Render(result)
-	}
+	result := Render(m.config, m.sysInfo, nil)
 
 	// Add help text
 	helpStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(m.theme.Colors.Border)).Faint(true)

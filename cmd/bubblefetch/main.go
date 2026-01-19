@@ -151,14 +151,7 @@ Notes:
 		return
 	}
 
-	// Create and run the Bubbletea program
-	model := ui.NewModel(cfg)
-	p := tea.NewProgram(model, tea.WithAltScreen())
-
-	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
-		os.Exit(1)
-	}
+	runFetch(cfg)
 }
 
 func normalizeFlags() {
@@ -284,6 +277,19 @@ func runExportMode(cfg *config.Config) {
 	}
 
 	fmt.Print(output)
+}
+
+func runFetch(cfg *config.Config) {
+	var collector collectors.Collector
+	if cfg.Remote != "" {
+		collector = remote.New(cfg.Remote, cfg)
+	} else {
+		collector = local.New(cfg.EnablePublicIP)
+	}
+
+	info, err := collector.Collect()
+	output := ui.Render(cfg, info, err)
+	fmt.Println(output)
 }
 
 func runImageExport(cfg *config.Config) {
