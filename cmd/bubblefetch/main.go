@@ -43,13 +43,41 @@ var (
 	imageOutputS = flag.String("o", "", "Alias for --image-output")
 	whoisTarget  = flag.String("who", "", "Domain scan (WHOIS + DNS records)")
 	whoisTargetS = flag.String("W", "", "Alias for --who")
+	helpFlag     = flag.Bool("help", false, "Show help message")
+	helpFlagS    = flag.Bool("h", false, "Alias for --help")
 )
 
 const Version = "0.3.0"
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, `Usage: bubblefetch [OPTIONS]
+
+Options:
+  -c, --config string         Path to config file (default: ~/.config/bubblefetch/config.yaml)
+  -t, --theme string          Theme name to use (overrides config)
+  -r, --remote string         Remote system IP/hostname to fetch info from (via SSH)
+  -e, --export string         Export format: json, yaml, or text
+  -p, --pretty                Pretty print JSON output (default: true)
+  -b, --benchmark             Run benchmark mode (10 iterations)
+  -w, --config-wizard         Run interactive configuration wizard
+  --image-export string       Export as image: png, svg, or html
+  -o, --image-output string   Image output path (default: bubblefetch.{format})
+  -W, --who string            Domain scan (WHOIS + DNS records)
+  -v, --version               Print version information
+  -h, --help                  Show help message
+
+Notes:
+  - If --image-export is omitted, the format is inferred from --image-output extension.
+`)
+	}
 	flag.Parse()
 	normalizeFlags()
+
+	if *helpFlag {
+		flag.Usage()
+		return
+	}
 
 	if *versionFlag {
 		fmt.Printf("bubblefetch v%s\n", Version)
@@ -161,6 +189,9 @@ func normalizeFlags() {
 	}
 	if *prettyS != *pretty {
 		*pretty = *prettyS
+	}
+	if *helpFlagS && !*helpFlag {
+		*helpFlag = true
 	}
 }
 
