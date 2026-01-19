@@ -45,7 +45,7 @@ type Model struct {
 }
 
 func NewModel() Model {
-	return Model{
+	model := Model{
 		config:   config.NewDefault(),
 		selected: make(map[string]bool),
 		themes: []string{
@@ -86,6 +86,8 @@ func NewModel() Model {
 		errorStyle:      lipgloss.NewStyle().Foreground(lipgloss.Color("#f38ba8")).Bold(true),
 		successStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("#a6e3a1")).Bold(true),
 	}
+	model.refreshPlugins()
+	return model
 }
 
 func (m Model) Init() tea.Cmd {
@@ -352,6 +354,7 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 
 	case stepTheme:
 		m.config.Theme = m.themes[m.cursor]
+		m.refreshPlugins()
 		m.step = stepModules
 		m.cursor = 0
 		// Pre-select recommended modules
@@ -438,6 +441,23 @@ func detectPlugins(pluginDir string) []string {
 
 	sort.Strings(plugins)
 	return plugins
+}
+
+func (m *Model) refreshPlugins() {
+	m.plugins = detectPlugins(m.config.PluginDir)
+	if len(m.plugins) == 0 {
+		return
+	}
+
+	existing := make(map[string]bool, len(m.modules))
+	for _, module := range m.modules {
+		existing[module] = true
+	}
+	for _, plugin := range m.plugins {
+		if !existing[plugin] {
+			m.modules = append(m.modules, plugin)
+		}
+	}
 }
 
 func (m Model) getMaxCursor() int {
