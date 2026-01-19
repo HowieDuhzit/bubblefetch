@@ -127,6 +127,9 @@ func loadSSHConfig(configPath string) sshConfigEntries {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
+		if idx := strings.Index(line, "#"); idx != -1 {
+			line = strings.TrimSpace(line[:idx])
+		}
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
