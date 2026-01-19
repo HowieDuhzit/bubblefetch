@@ -1,17 +1,21 @@
 package remote
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/ssh"
 	"github.com/howieduhzit/bubblefetch/internal/collectors"
 	"github.com/howieduhzit/bubblefetch/internal/config"
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 type SSHCollector struct {
@@ -41,44 +45,48 @@ func (c *SSHCollector) Connect() error {
 	}
 
 	// Parse host (support user@host format)
-	hostParts := strings.Split(c.host, "@")
-	if len(hostParts) == 2 {
-		user = hostParts[0]
-		c.host = hostParts[1]
+	inputHost := c.host
+	if strings.Contains(inputHost, "@") {
+		parts := strings.SplitN(inputHost, "@", 2)
+		user = parts[0]
+		inputHost = parts[1]
 	}
 
-	// Load SSH key
-	keyPath := c.config.SSH.KeyPath
-	if keyPath == "" {
-		home, _ := os.UserHomeDir()
-		keyPath = filepath.Join(home, ".ssh", "id_rsa")
-	}
+	host, explicitPort := splitHostPort(inputHost)
 
-	key, err := os.ReadFile(keyPath)
-	if err != nil {
-		// Try id_ed25519 as fallback
-		keyPath = filepath.Join(filepath.Dir(keyPath), "id_ed25519")
-		key, err = os.ReadFile(keyPath)
-		if err != nil {
-			return fmt.Errorf("failed to read SSH key: %v", err)
+	sshCfg := loadSSHConfig(c.config.SSH.KnownHostsPath)
+	hostCfg := sshCfg.match(host)
+
+	if hostCfg.HostName != "" {
+		host = hostCfg.HostName
+	}
+	if hostCfg.User != "" && c.config.SSH.User == "" {
+		user = hostCfg.User
+	}
+	if !explicitPort && hostCfg.Port != "" {
+		if parsed, err := strconv.Atoi(hostCfg.Port); err == nil {
+			port = parsed
 		}
 	}
 
-	signer, err := ssh.ParsePrivateKey(key)
+	authMethods, err := buildSSHAuthMethods(c.config.SSH.KeyPath, hostCfg.IdentityFiles)
 	if err != nil {
-		return fmt.Errorf("failed to parse SSH key: %v", err)
+		return err
+	}
+
+	hostKeyCallback, err := buildHostKeyCallback(c.config.SSH.KnownHostsPath)
+	if err != nil {
+		return err
 	}
 
 	sshConfig := &ssh.ClientConfig{
 		User: user,
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // TODO: Use known_hosts
+		Auth: authMethods,
+		HostKeyCallback: hostKeyCallback,
 		Timeout:         10 * time.Second,
 	}
 
-	addr := net.JoinHostPort(c.host, strconv.Itoa(port))
+	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	client, err := ssh.Dial("tcp", addr, sshConfig)
 	if err != nil {
 		return fmt.Errorf("failed to connect to %s: %v", addr, err)
@@ -86,6 +94,203 @@ func (c *SSHCollector) Connect() error {
 
 	c.client = client
 	return nil
+}
+
+type sshHostConfig struct {
+	Patterns      []string
+	HostName      string
+	User          string
+	Port          string
+	IdentityFiles []string
+}
+
+type sshConfigEntries []sshHostConfig
+
+func loadSSHConfig(knownHostsPath string) sshConfigEntries {
+	configPath := knownHostsPath
+	if configPath == "" {
+		home, err := os.UserHomeDir()
+		if err == nil {
+			configPath = filepath.Join(home, ".ssh", "config")
+		}
+	}
+
+	file, err := os.Open(configPath)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+
+	var entries sshConfigEntries
+	var current *sshHostConfig
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+
+		key := strings.ToLower(fields[0])
+		value := strings.Join(fields[1:], " ")
+
+		if key == "host" {
+			if current != nil {
+				entries = append(entries, *current)
+			}
+			current = &sshHostConfig{
+				Patterns: fields[1:],
+			}
+			continue
+		}
+
+		if current == nil {
+			continue
+		}
+
+		switch key {
+		case "hostname":
+			current.HostName = value
+		case "user":
+			current.User = value
+		case "port":
+			current.Port = value
+		case "identityfile":
+			current.IdentityFiles = append(current.IdentityFiles, expandHome(value))
+		}
+	}
+
+	if current != nil {
+		entries = append(entries, *current)
+	}
+
+	return entries
+}
+
+func (entries sshConfigEntries) match(host string) sshHostConfig {
+	var matched sshHostConfig
+	for _, entry := range entries {
+		for _, pattern := range entry.Patterns {
+			if matchHost(pattern, host) {
+				matched = mergeHostConfig(matched, entry)
+				break
+			}
+		}
+	}
+	return matched
+}
+
+func mergeHostConfig(base, override sshHostConfig) sshHostConfig {
+	if override.HostName != "" {
+		base.HostName = override.HostName
+	}
+	if override.User != "" {
+		base.User = override.User
+	}
+	if override.Port != "" {
+		base.Port = override.Port
+	}
+	if len(override.IdentityFiles) > 0 {
+		base.IdentityFiles = append(base.IdentityFiles, override.IdentityFiles...)
+	}
+	return base
+}
+
+func matchHost(pattern, host string) bool {
+	if pattern == "*" {
+		return true
+	}
+	if strings.ContainsAny(pattern, "*?") {
+		ok, err := path.Match(pattern, host)
+		return err == nil && ok
+	}
+	return strings.EqualFold(pattern, host)
+}
+
+func expandHome(value string) string {
+	if strings.HasPrefix(value, "~") {
+		if home, err := os.UserHomeDir(); err == nil {
+			return filepath.Join(home, strings.TrimPrefix(value, "~"))
+		}
+	}
+	return value
+}
+
+func splitHostPort(host string) (string, bool) {
+	if strings.Contains(host, ":") {
+		if h, _, err := net.SplitHostPort(host); err == nil {
+			return h, true
+		}
+	}
+	return host, false
+}
+
+func buildSSHAuthMethods(keyPath string, identityFiles []string) ([]ssh.AuthMethod, error) {
+	var methods []ssh.AuthMethod
+
+	if sock := os.Getenv("SSH_AUTH_SOCK"); sock != "" {
+		conn, err := net.Dial("unix", sock)
+		if err == nil {
+			agentClient := agent.NewClient(conn)
+			methods = append(methods, ssh.PublicKeysCallback(agentClient.Signers))
+		}
+	}
+
+	keysToTry := []string{}
+	if keyPath != "" {
+		keysToTry = append(keysToTry, expandHome(keyPath))
+	}
+	keysToTry = append(keysToTry, identityFiles...)
+
+	if len(keysToTry) == 0 {
+		home, _ := os.UserHomeDir()
+		keysToTry = []string{
+			filepath.Join(home, ".ssh", "id_ed25519"),
+			filepath.Join(home, ".ssh", "id_rsa"),
+		}
+	}
+
+	for _, keyFile := range keysToTry {
+		key, err := os.ReadFile(keyFile)
+		if err != nil {
+			continue
+		}
+
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			continue
+		}
+
+		methods = append(methods, ssh.PublicKeys(signer))
+	}
+
+	if len(methods) == 0 {
+		return nil, fmt.Errorf("no usable SSH authentication methods found")
+	}
+
+	return methods, nil
+}
+
+func buildHostKeyCallback(knownHostsPath string) (ssh.HostKeyCallback, error) {
+	path := knownHostsPath
+	if path == "" {
+		home, err := os.UserHomeDir()
+		if err == nil {
+			path = filepath.Join(home, ".ssh", "known_hosts")
+		}
+	}
+
+	callback, err := knownhosts.New(path)
+	if err == nil {
+		return callback, nil
+	}
+
+	return ssh.InsecureIgnoreHostKey(), nil
 }
 
 func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
