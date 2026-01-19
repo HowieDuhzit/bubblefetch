@@ -76,12 +76,41 @@ func Factory(name string) Module {
 }
 
 func renderField(label, value string, styles theme.Styles, separator string) string {
+	if icon, ok := labelIcons[label]; ok {
+		return lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			styles.Separator.Render(icon),
+			styles.Label.Render(" "+label),
+			styles.Separator.Render(separator),
+			styles.Value.Render(value),
+		)
+	}
+
 	return lipgloss.JoinHorizontal(
 		lipgloss.Left,
 		styles.Label.Render(label),
 		styles.Separator.Render(separator),
 		styles.Value.Render(value),
 	)
+}
+
+var labelIcons = map[string]string{
+	"OS":        "󰍹",
+	"Kernel":    "󰣇",
+	"Host":      "󰟀",
+	"Uptime":    "󰥔",
+	"CPU":       "󰻠",
+	"GPU":       "󰢮",
+	"Memory":    "󰍛",
+	"Disk":      "󰋊",
+	"Shell":     "󰆍",
+	"Terminal":  "󰆍",
+	"DE":        "󰧨",
+	"WM":        "󰖯",
+	"Network":   "󰈁",
+	"Local IP":  "󰩟",
+	"Public IP": "󰩟",
+	"Battery":   "󰁹",
 }
 
 func formatBytes(bytes uint64) string {

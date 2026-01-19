@@ -143,6 +143,8 @@ bubblefetch --theme dracula
 bubblefetch --config ~/.config/bubblefetch/custom.yaml
 ```
 
+Tip: Use a Nerd Font in your terminal to see module icons.
+
 ### Remote Systems (SSH)
 
 ```bash
