@@ -54,7 +54,7 @@ func (c *SSHCollector) Connect() error {
 
 	host, explicitPort := splitHostPort(inputHost)
 
-	sshCfg := loadSSHConfig(c.config.SSH.KnownHostsPath)
+	sshCfg := loadSSHConfig("")
 	hostCfg := sshCfg.match(host)
 
 	if hostCfg.HostName != "" {
@@ -69,7 +69,7 @@ func (c *SSHCollector) Connect() error {
 		}
 	}
 
-	authMethods, err := buildSSHAuthMethods(c.config.SSH.KeyPath, hostCfg.IdentityFiles)
+	authMethods, err := buildSSHAuthMethods(c.config.SSH.KeyPath, hostCfg.IdentityFiles, hostCfg.IdentityAgent)
 	if err != nil {
 		return err
 	}
@@ -102,12 +102,12 @@ type sshHostConfig struct {
 	User          string
 	Port          string
 	IdentityFiles []string
+	IdentityAgent string
 }
 
 type sshConfigEntries []sshHostConfig
 
-func loadSSHConfig(knownHostsPath string) sshConfigEntries {
-	configPath := knownHostsPath
+func loadSSHConfig(configPath string) sshConfigEntries {
 	if configPath == "" {
 		home, err := os.UserHomeDir()
 		if err == nil {
@@ -162,6 +162,8 @@ func loadSSHConfig(knownHostsPath string) sshConfigEntries {
 			current.Port = value
 		case "identityfile":
 			current.IdentityFiles = append(current.IdentityFiles, expandHome(value))
+		case "identityagent":
+			current.IdentityAgent = expandHome(value)
 		}
 	}
 
@@ -198,6 +200,9 @@ func mergeHostConfig(base, override sshHostConfig) sshHostConfig {
 	if len(override.IdentityFiles) > 0 {
 		base.IdentityFiles = append(base.IdentityFiles, override.IdentityFiles...)
 	}
+	if override.IdentityAgent != "" {
+		base.IdentityAgent = override.IdentityAgent
+	}
 	return base
 }
 
@@ -230,10 +235,15 @@ func splitHostPort(host string) (string, bool) {
 	return host, false
 }
 
-func buildSSHAuthMethods(keyPath string, identityFiles []string) ([]ssh.AuthMethod, error) {
+func buildSSHAuthMethods(keyPath string, identityFiles []string, identityAgent string) ([]ssh.AuthMethod, error) {
 	var methods []ssh.AuthMethod
 
-	if sock := os.Getenv("SSH_AUTH_SOCK"); sock != "" {
+	sock := identityAgent
+	if sock == "" {
+		sock = os.Getenv("SSH_AUTH_SOCK")
+	}
+
+	if sock != "" {
 		conn, err := net.Dial("unix", sock)
 		if err == nil {
 			agentClient := agent.NewClient(conn)
