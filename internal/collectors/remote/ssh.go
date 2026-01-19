@@ -455,16 +455,29 @@ func (c *SSHCollector) parseDisk(info *collectors.SystemInfo, output string) {
 func (c *SSHCollector) parseGPU(info *collectors.SystemInfo, output string) {
 	lines := strings.Split(output, "\n")
 	for _, line := range lines {
-		if line != "" {
-			// Extract GPU name after the PCI ID
-			if idx := strings.Index(line, ":"); idx != -1 {
-				gpu := strings.TrimSpace(line[idx+1:])
-				gpu = strings.TrimPrefix(gpu, "VGA compatible controller: ")
-				gpu = strings.TrimPrefix(gpu, "3D controller: ")
-				gpu = strings.TrimPrefix(gpu, "Display controller: ")
-				info.GPU = append(info.GPU, gpu)
-			}
+		clean := strings.TrimSpace(line)
+		if clean == "" {
+			continue
 		}
+
+		lower := strings.ToLower(clean)
+		var gpu string
+		if idx := strings.Index(lower, "controller:"); idx != -1 {
+			gpu = strings.TrimSpace(clean[idx+len("controller:"):])
+		} else if idx := strings.Index(clean, ":"); idx != -1 {
+			gpu = strings.TrimSpace(clean[idx+1:])
+		} else {
+			gpu = clean
+		}
+
+		gpu = strings.TrimPrefix(gpu, "VGA compatible controller: ")
+		gpu = strings.TrimPrefix(gpu, "3D controller: ")
+		gpu = strings.TrimPrefix(gpu, "Display controller: ")
+		if idx := strings.Index(gpu, " ("); idx != -1 {
+			gpu = strings.TrimSpace(gpu[:idx])
+		}
+		gpu = strings.Join(strings.Fields(gpu), " ")
+		info.GPU = append(info.GPU, gpu)
 	}
 }
 

@@ -94,6 +94,13 @@ func renderField(label, value string, styles theme.Styles, separator string) str
 	)
 }
 
+func truncateValue(value string, maxWidth int) string {
+	if maxWidth <= 0 {
+		return value
+	}
+	return lipgloss.Truncate(value, maxWidth)
+}
+
 var labelIcons = map[string]string{
 	"OS":        "󰍹",
 	"Kernel":    "󰣇",
@@ -201,6 +208,9 @@ type TerminalModule struct{}
 
 func (m *TerminalModule) Name() string { return "terminal" }
 func (m *TerminalModule) Render(info *collectors.SystemInfo, styles theme.Styles) string {
+	if info.Terminal == "" {
+		return ""
+	}
 	return renderField("Terminal", info.Terminal, styles, ": ")
 }
 
@@ -239,6 +249,7 @@ func (m *GPUModule) Render(info *collectors.SystemInfo, styles theme.Styles) str
 	if len(info.GPU) > 1 {
 		gpu = fmt.Sprintf("%s (+%d more)", gpu, len(info.GPU)-1)
 	}
+	gpu = truncateValue(gpu, 64)
 	return renderField("GPU", gpu, styles, ": ")
 }
 
