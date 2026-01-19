@@ -93,28 +93,6 @@ func formatExternal(payload externalOutput, styles theme.Styles) string {
 		separator = ": "
 	}
 
-	if payload.Label != "" {
-		if payload.Icon != "" {
-			return lipgloss.JoinHorizontal(
-				lipgloss.Left,
-				styles.Separator.Render(payload.Icon),
-				styles.Label.Render(" "+payload.Label),
-				styles.Separator.Render(separator),
-				styles.Value.Render(payload.Value),
-			)
-		}
-		return lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			styles.Label.Render(payload.Label),
-			styles.Separator.Render(separator),
-			styles.Value.Render(payload.Value),
-		)
-	}
-
-	if payload.Value != "" {
-		return styles.Value.Render(payload.Value)
-	}
-
 	lines := payload.Lines
 	if len(lines) == 0 {
 		raw := payload.Raw
@@ -128,6 +106,46 @@ func formatExternal(payload externalOutput, styles theme.Styles) string {
 
 	if len(lines) == 0 {
 		return ""
+	}
+
+	if payload.Label != "" {
+		var header string
+		if payload.Icon != "" {
+			header = lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				styles.Separator.Render(payload.Icon),
+				styles.Label.Render(" "+payload.Label),
+				styles.Separator.Render(separator),
+				styles.Value.Render(payload.Value),
+			)
+		} else {
+			header = lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				styles.Label.Render(payload.Label),
+				styles.Separator.Render(separator),
+				styles.Value.Render(payload.Value),
+			)
+		}
+		if payload.Value != "" && len(lines) == 0 {
+			return header
+		}
+
+		styledLines := make([]string, 0, len(lines))
+		for _, line := range lines {
+			line = strings.TrimRight(line, "\r")
+			if line == "" {
+				continue
+			}
+			styledLines = append(styledLines, "  "+styles.Value.Render(line))
+		}
+		if len(styledLines) == 0 {
+			return header
+		}
+		return header + "\n" + strings.Join(styledLines, "\n")
+	}
+
+	if payload.Value != "" {
+		return styles.Value.Render(payload.Value)
 	}
 
 	styled := make([]string, 0, len(lines))
