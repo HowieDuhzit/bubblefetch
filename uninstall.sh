@@ -20,8 +20,10 @@ if [ -f "$INSTALL_DIR/bubblefetch" ]; then
     echo -e "${YELLOW}Removing binary...${NC}"
     if [ -w "$INSTALL_DIR" ]; then
         rm "$INSTALL_DIR/bubblefetch"
+        rm -f "$INSTALL_DIR/bf"
     else
         sudo rm "$INSTALL_DIR/bubblefetch"
+        sudo rm -f "$INSTALL_DIR/bf"
     fi
     echo -e "${GREEN}✓ Binary removed${NC}"
 else

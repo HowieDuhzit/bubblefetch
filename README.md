@@ -285,6 +285,7 @@ bubblefetch --version
 
 # Show help
 bubblefetch --help
+bf --help
 ```
 
 ### Keyboard Shortcuts
@@ -545,23 +546,44 @@ make clean-plugins   # Clean plugin artifacts
 Usage: bubblefetch [OPTIONS]
 
 Options:
+  -c, --config string
+        Path to config file (default: ~/.config/bubblefetch/config.yaml)
+
   --config string
         Path to config file (default: ~/.config/bubblefetch/config.yaml)
+
+  -t, --theme string
+        Theme name to use (overrides config)
 
   --theme string
         Theme name to use (overrides config)
 
+  -r, --remote string
+        Remote system IP/hostname to fetch info from (via SSH)
+
   --remote string
         Remote system IP/hostname to fetch info from (via SSH)
+
+  -e, --export string
+        Export format: json, yaml, or text
 
   --export string
         Export format: json, yaml, or text
 
+  -p, --pretty
+        Pretty print JSON output (default: true)
+
   --pretty
         Pretty print JSON output (default: true)
 
+  -b, --benchmark
+        Run benchmark mode (10 iterations)
+
   --benchmark
         Run benchmark mode (10 iterations)
+
+  -w, --config-wizard
+        Run interactive configuration wizard
 
   --config-wizard
         Run interactive configuration wizard
@@ -569,8 +591,20 @@ Options:
   --image-export string
         Export as image: png, svg, or html
 
+  -o, --image-output string
+        Image output path (default: bubblefetch.{format})
+
   --image-output string
         Image output path (default: bubblefetch.{format})
+
+  -W, --who string
+        Domain scan (WHOIS + DNS records)
+
+  --who string
+        Domain scan (WHOIS + DNS records)
+
+  -v, --version
+        Print version information
 
   --version
         Print version information
@@ -580,11 +614,17 @@ Options:
 
 Examples:
   bubblefetch                                    # Run with default config
+  bf                                             # Short alias
   bubblefetch --theme dracula                    # Use dracula theme
+  bf -t dracula                                  # Short flags
   bubblefetch --config-wizard                    # Interactive setup
   bubblefetch --remote user@server               # SSH to remote system
+  bf -r user@server                              # Short remote flag
   bubblefetch --export json --pretty=false       # Export compact JSON
+  bf -e json -p=false                            # Short export flags
   bubblefetch --image-export png                 # Export as PNG
+  bf -o ~/Pictures/fetch.svg                     # Auto-detect SVG from extension
+  bubblefetch --who google.com                   # Domain WHOIS + DNS scan
   bubblefetch --benchmark                        # Performance test
 ```
 

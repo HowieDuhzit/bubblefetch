@@ -43,10 +43,12 @@ INSTALL_DIR="/usr/local/bin"
 if [ -w "$INSTALL_DIR" ]; then
     echo -e "${YELLOW}Installing to $INSTALL_DIR...${NC}"
     mv bubblefetch "$INSTALL_DIR/"
+    ln -sf "$INSTALL_DIR/bubblefetch" "$INSTALL_DIR/bf"
     echo -e "${GREEN}✓ Installed successfully${NC}"
 else
     echo -e "${YELLOW}Installing to $INSTALL_DIR (requires sudo)...${NC}"
     sudo mv bubblefetch "$INSTALL_DIR/"
+    sudo ln -sf "$INSTALL_DIR/bubblefetch" "$INSTALL_DIR/bf"
     echo -e "${GREEN}✓ Installed successfully${NC}"
 fi
 
@@ -81,7 +83,7 @@ echo -e "${GREEN}╔════════════════════
 echo -e "${GREEN}║  Installation Complete! 🎉   ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════╝${NC}"
 echo ""
-echo -e "Run ${BLUE}bubblefetch${NC} to get started!"
+echo -e "Run ${BLUE}bubblefetch${NC} or ${BLUE}bf${NC} to get started!"
 echo -e "Run ${BLUE}bubblefetch --help${NC} for options"
 echo ""
 echo -e "Config: ${YELLOW}$CONFIG_DIR/config.yaml${NC}"

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,25 +18,39 @@ import (
 	"github.com/howieduhzit/bubblefetch/internal/ui"
 	"github.com/howieduhzit/bubblefetch/internal/ui/config_wizard"
 	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
+	"github.com/howieduhzit/bubblefetch/internal/whois"
+	"github.com/howieduhzit/bubblefetch/internal/whois"
 )
 
 var (
 	configPath   = flag.String("config", "", "Path to config file (default: ~/.config/bubblefetch/config.yaml)")
+	configPathS  = flag.String("c", "", "Alias for --config")
 	themeName    = flag.String("theme", "", "Theme name to use")
+	themeNameS   = flag.String("t", "", "Alias for --theme")
 	remoteSys    = flag.String("remote", "", "Remote system IP/hostname to fetch info from (via SSH)")
+	remoteSysS   = flag.String("r", "", "Alias for --remote")
 	exportFmt    = flag.String("export", "", "Export format: json, yaml, or text")
+	exportFmtS   = flag.String("e", "", "Alias for --export")
 	pretty       = flag.Bool("pretty", true, "Pretty print JSON output (default: true)")
+	prettyS      = flag.Bool("p", true, "Alias for --pretty")
 	benchmark    = flag.Bool("benchmark", false, "Run benchmark mode")
+	benchmarkS   = flag.Bool("b", false, "Alias for --benchmark")
 	versionFlag  = flag.Bool("version", false, "Print version information")
+	versionFlagS = flag.Bool("v", false, "Alias for --version")
 	configWizard = flag.Bool("config-wizard", false, "Run interactive configuration wizard")
+	configWizardS = flag.Bool("w", false, "Alias for --config-wizard")
 	imageExport  = flag.String("image-export", "", "Export as image: png, svg, or html")
 	imageOutput  = flag.String("image-output", "", "Image output path (default: bubblefetch.{format})")
+	imageOutputS = flag.String("o", "", "Alias for --image-output")
+	whoisTarget  = flag.String("who", "", "Domain scan (WHOIS + DNS records)")
+	whoisTargetS = flag.String("W", "", "Alias for --who")
 )
 
 const Version = "0.3.0"
 
 func main() {
 	flag.Parse()
+	normalizeFlags()
 
 	if *versionFlag {
 		fmt.Printf("bubblefetch v%s\n", Version)
@@ -50,6 +65,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error running config wizard: %v\n", err)
 			os.Exit(1)
 		}
+		return
+	}
+
+	if *whoisTarget != "" {
+		runWhois(*whoisTarget)
 		return
 	}
 
@@ -106,6 +126,56 @@ func main() {
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
 		os.Exit(1)
+	}
+}
+
+func normalizeFlags() {
+	if *configPathS != "" && *configPath == "" {
+		*configPath = *configPathS
+	}
+	if *themeNameS != "" && *themeName == "" {
+		*themeName = *themeNameS
+	}
+	if *remoteSysS != "" && *remoteSys == "" {
+		*remoteSys = *remoteSysS
+	}
+	if *exportFmtS != "" && *exportFmt == "" {
+		*exportFmt = *exportFmtS
+	}
+	if *imageOutputS != "" && *imageOutput == "" {
+		*imageOutput = *imageOutputS
+	}
+	if *imageExport == "" && *imageOutput != "" {
+		*imageExport = inferImageFormat(*imageOutput)
+	}
+	if *whoisTargetS != "" && *whoisTarget == "" {
+		*whoisTarget = *whoisTargetS
+	}
+	if *benchmarkS && !*benchmark {
+		*benchmark = true
+	}
+	if *configWizardS && !*configWizard {
+		*configWizard = true
+	}
+	if *versionFlagS && !*versionFlag {
+		*versionFlag = true
+	}
+	if *prettyS != *pretty {
+		*pretty = *prettyS
+	}
+}
+
+func inferImageFormat(outputPath string) string {
+	ext := strings.ToLower(filepath.Ext(outputPath))
+	switch ext {
+	case ".png":
+		return "png"
+	case ".svg":
+		return "svg"
+	case ".html", ".htm":
+		return "html"
+	default:
+		return ""
 	}
 }
 
@@ -229,4 +299,14 @@ func runImageExport(cfg *config.Config) {
 	}
 
 	fmt.Printf("Successfully exported to %s\n", outputPath)
+}
+
+func runWhois(target string) {
+	result, err := whois.Lookup(target)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println(result)
 }
