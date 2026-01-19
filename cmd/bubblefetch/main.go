@@ -19,7 +19,6 @@ import (
 	"github.com/howieduhzit/bubblefetch/internal/ui/config_wizard"
 	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
 	"github.com/howieduhzit/bubblefetch/internal/whois"
-	"github.com/howieduhzit/bubblefetch/internal/whois"
 )
 
 var (
