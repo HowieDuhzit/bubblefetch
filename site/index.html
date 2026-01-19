@@ -52,6 +52,20 @@
         --mint: #2ad59b;
         --shadow: 0 20px 60px rgba(10, 12, 20, 0.18);
         --radius: 22px;
+        color-scheme: light dark;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --ink: #f5f1ea;
+          --ink-muted: #c7c2b7;
+          --paper: #10121a;
+          --cream: #1a1f2b;
+          --accent: #ff8b5e;
+          --accent-2: #6aa4ff;
+          --mint: #3ee6ab;
+          --shadow: 0 20px 60px rgba(2, 4, 10, 0.45);
+        }
       }
 
       * {
@@ -65,6 +79,14 @@
         background: radial-gradient(1200px 600px at 10% 5%, #ffe6bf, transparent),
           radial-gradient(900px 500px at 90% 0%, #c9dbff, transparent),
           linear-gradient(160deg, #fff9f1 0%, #f3f1ff 100%);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: radial-gradient(1200px 600px at 10% 5%, #2a1b1b, transparent),
+            radial-gradient(900px 500px at 90% 0%, #0b1b3f, transparent),
+            linear-gradient(160deg, #0c0f17 0%, #151827 100%);
+        }
       }
 
       a {
@@ -178,6 +200,12 @@
         border: 1px solid rgba(20, 24, 35, 0.08);
       }
 
+      @media (prefers-color-scheme: dark) {
+        .chip {
+          border-color: rgba(245, 241, 234, 0.12);
+        }
+      }
+
       .cta {
         display: inline-flex;
         align-items: center;
@@ -201,6 +229,13 @@
         color: var(--ink);
         border: 1px solid rgba(20, 24, 35, 0.1);
         box-shadow: 0 10px 24px rgba(10, 12, 20, 0.12);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .cta.secondary {
+          border-color: rgba(245, 241, 234, 0.16);
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+        }
       }
 
       .hero-visual {
@@ -227,6 +262,13 @@
         gap: 10px;
         align-items: center;
         box-shadow: var(--shadow);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .badge {
+          background: #171b25;
+          border-color: rgba(245, 241, 234, 0.12);
+        }
       }
 
       .badge span {
@@ -270,6 +312,14 @@
         box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
       }
 
+      @media (prefers-color-scheme: dark) {
+        .theme-card {
+          background: #171b25;
+          border-color: rgba(245, 241, 234, 0.08);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+      }
+
       .theme-card img {
         width: 100%;
         border-radius: 12px;
@@ -283,58 +333,20 @@
         font-size: 0.95rem;
       }
 
-      .plugin-grid {
-        display: grid;
-        gap: 18px;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      }
-
-      .plugin-card {
-        background: white;
-        padding: 20px;
-        border-radius: 18px;
-        border: 1px solid rgba(10, 12, 20, 0.06);
-        box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .plugin-meta {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        color: var(--ink-muted);
-        font-size: 0.85rem;
-      }
-
-      .button-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      .button {
-        padding: 8px 14px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        border: 1px solid rgba(20, 24, 35, 0.12);
-        background: var(--cream);
-      }
-
-      .button.primary {
-        background: var(--accent-2);
-        color: white;
-        border-color: transparent;
-      }
-
       .card {
         background: white;
         padding: 20px;
         border-radius: 18px;
         border: 1px solid rgba(10, 12, 20, 0.06);
         box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .card {
+          background: #171b25;
+          border-color: rgba(245, 241, 234, 0.08);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
       }
 
       .card h3 {
@@ -365,6 +377,13 @@
         padding: 24px;
         border-radius: 20px;
         box-shadow: var(--shadow);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .panel {
+          background: linear-gradient(140deg, #151a26, #1f2433);
+          color: #f5f1ea;
+        }
       }
 
       .panel strong {
@@ -433,7 +452,6 @@
         <nav class="nav">
           <a href="#features">Features</a>
           <a href="#themes">Themes</a>
-          <a href="#plugins">Plugins</a>
           <a href="#quickstart">Quickstart</a>
           <a href="#performance">Performance</a>
         </nav>
@@ -509,7 +527,7 @@
           </div>
           <div class="card">
             <h3>Export ready</h3>
-            JSON, YAML, or plain text output for scripts or docs.
+            JSON, YAML, text, plus PNG/SVG/HTML image exports.
           </div>
           <div class="card">
             <h3>Remote friendly</h3>
@@ -605,18 +623,6 @@
         </div>
       </section>
 
-      <section class="section" id="plugins">
-        <h2>Plugin store</h2>
-        <p>
-          Browse community plugins sourced from the repo manifest. Downloads are
-          platform-specific Go plugins (`.so`) served from GitHub Releases.
-        </p>
-        <div class="plugin-grid" id="plugin-grid"></div>
-        <p class="mono" id="plugin-status" style="margin-top: 16px">
-          Loading plugins...
-        </p>
-      </section>
-
       <section class="section split" id="performance">
         <div class="panel">
           <h3>Benchmark mode</h3>
@@ -665,83 +671,5 @@
         </div>
       </footer>
     </div>
-    <script>
-      const pluginGrid = document.getElementById("plugin-grid");
-      const pluginStatus = document.getElementById("plugin-status");
-      const manifestUrl =
-        "https://raw.githubusercontent.com/howieduhzit/bubblefetch/main/plugins/manifest.json";
-
-      function renderPlugins(plugins) {
-        if (!plugins.length) {
-          pluginStatus.textContent = "No plugins published yet.";
-          return;
-        }
-
-        pluginStatus.remove();
-        plugins.forEach((plugin) => {
-          const card = document.createElement("div");
-          card.className = "plugin-card";
-
-          const title = document.createElement("h3");
-          title.textContent = plugin.name;
-
-          const description = document.createElement("p");
-          description.textContent = plugin.description || "No description yet.";
-
-          const meta = document.createElement("div");
-          meta.className = "plugin-meta";
-          meta.textContent = `Version ${plugin.version || "0.1.0"}`;
-
-          const platforms = document.createElement("div");
-          platforms.className = "plugin-meta";
-          if (plugin.platforms && plugin.platforms.length) {
-            platforms.textContent = `Platforms: ${plugin.platforms.join(", ")}`;
-          }
-
-          const buttons = document.createElement("div");
-          buttons.className = "button-row";
-
-          if (plugin.downloads && plugin.downloads.length) {
-            plugin.downloads.forEach((item, index) => {
-              const download = document.createElement("a");
-              download.className = `button${index === 0 ? " primary" : ""}`;
-              download.href = item.url;
-              download.textContent = item.label || "Download";
-              buttons.appendChild(download);
-            });
-          }
-
-          if (plugin.source) {
-            const source = document.createElement("a");
-            source.className = "button";
-            source.href = plugin.source;
-            source.textContent = "View source";
-            buttons.appendChild(source);
-          }
-
-          card.appendChild(title);
-          card.appendChild(description);
-          card.appendChild(meta);
-          if (platforms.textContent) {
-            card.appendChild(platforms);
-          }
-          card.appendChild(buttons);
-          pluginGrid.appendChild(card);
-        });
-      }
-
-      fetch(manifestUrl)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Manifest fetch failed.");
-          }
-          return response.json();
-        })
-        .then((data) => renderPlugins(data))
-        .catch(() => {
-          pluginStatus.textContent =
-            "Unable to load plugin manifest. Please check the repo.";
-        });
-    </script>
   </body>
 </html>
