@@ -67,11 +67,15 @@ func (m *externalModule) run() (string, error) {
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, m.path)
+	cwd, err := os.Getwd()
+	if err == nil && cwd != "" {
+		cmd.Dir = cwd
+	}
 	cmd.Env = append(os.Environ(),
 		"BUBBLEFETCH_FORMAT=json",
 		"BUBBLEFETCH_MODULE="+m.name,
+		"BUBBLEFETCH_CWD="+cmd.Dir,
 	)
-	cmd.Dir = filepath.Dir(m.path)
 
 	output, err := cmd.Output()
 	if ctx.Err() == context.DeadlineExceeded {

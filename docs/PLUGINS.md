@@ -30,8 +30,9 @@ git diff --quiet --ignore-submodules -- || dirty="dirty"
 counts="$(git rev-list --left-right --count @{upstream}...HEAD 2>/dev/null || echo "0\t0")"
 behind="$(printf "%s" "$counts" | awk '{print $1}')"
 ahead="$(printf "%s" "$counts" | awk '{print $2}')"
-value="Branch: ${branch} · ${dirty} · ↑${ahead} ↓${behind}\nRoot: ${root}"
-printf '{\"label\":\"Git\",\"icon\":\"\",\"value\":\"%s\"}\n' "$value"
+line1="Branch: ${branch} · ${dirty} · ↑${ahead} ↓${behind}"
+line2="Root: ${root}"
+printf '{\"label\":\"Git\",\"icon\":\"\",\"lines\":[\"%s\",\"%s\"]}\n' "$line1" "$line2"
 ```
 
 Make it executable and install:
@@ -73,7 +74,7 @@ Notes:
 - `icon` is optional and shown like built-in modules.
 - `lines` renders multiple lines; `raw`/`text` are used as fallback.
 - Timeout is controlled by `external_module_timeout_ms` (default: 250ms).
-- Bubblefetch sets `BUBBLEFETCH_FORMAT=json` and `BUBBLEFETCH_MODULE=<name>` env vars.
+- Bubblefetch sets `BUBBLEFETCH_FORMAT=json`, `BUBBLEFETCH_MODULE=<name>`, and `BUBBLEFETCH_CWD=<current dir>` env vars.
 
 ## Platform Support
 

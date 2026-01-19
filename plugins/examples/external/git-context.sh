@@ -3,6 +3,7 @@ set -euo pipefail
 
 root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -z "$root" ]]; then
+  printf '{\"label\":\"Git\",\"icon\":\"\",\"value\":\"Not a git repo\"}\n'
   exit 0
 fi
 
@@ -21,10 +22,13 @@ if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
   ahead="$(printf "%s" "$counts" | awk '{print $2}')"
 fi
 
-value="Branch: ${branch} · ${dirty} · ↑${ahead} ↓${behind}\nRoot: ${root}"
+line1="Branch: ${branch} · ${dirty} · ↑${ahead} ↓${behind}"
+line2="Root: ${root}"
 
 json_escape() {
   printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/\"/\\\"/g'
 }
 
-printf '{\"label\":\"Git\",\"icon\":\"\",\"value\":\"%s\"}\n' "$(json_escape "$value")"
+printf '{\"label\":\"Git\",\"icon\":\"\",\"lines\":[\"%s\",\"%s\"]}\n' \
+  "$(json_escape "$line1")" \
+  "$(json_escape "$line2")"
