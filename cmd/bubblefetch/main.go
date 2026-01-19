@@ -43,6 +43,8 @@ var (
 	imageOutputS = flag.String("o", "", "Alias for --image-output")
 	whoisTarget  = flag.String("who", "", "Domain scan (WHOIS + DNS records)")
 	whoisTargetS = flag.String("W", "", "Alias for --who")
+	whoisRaw     = flag.Bool("who-raw", false, "Include raw WHOIS output")
+	whoisRawS    = flag.Bool("R", false, "Alias for --who-raw")
 	helpFlag     = flag.Bool("help", false, "Show help message")
 	helpFlagS    = flag.Bool("h", false, "Alias for --help")
 )
@@ -64,6 +66,7 @@ Options:
   --image-export string       Export as image: png, svg, or html
   -o, --image-output string   Image output path (default: bubblefetch.{format})
   -W, --who string            Domain scan (WHOIS + DNS records)
+  -R, --who-raw               Include raw WHOIS output
   -v, --version               Print version information
   -h, --help                  Show help message
 
@@ -96,7 +99,7 @@ Notes:
 	}
 
 	if *whoisTarget != "" {
-		runWhois(*whoisTarget)
+		runWhois(*whoisTarget, *whoisRaw)
 		return
 	}
 
@@ -177,6 +180,9 @@ func normalizeFlags() {
 	}
 	if *whoisTargetS != "" && *whoisTarget == "" {
 		*whoisTarget = *whoisTargetS
+	}
+	if *whoisRawS && !*whoisRaw {
+		*whoisRaw = true
 	}
 	if *benchmarkS && !*benchmark {
 		*benchmark = true
@@ -331,8 +337,8 @@ func runImageExport(cfg *config.Config) {
 	fmt.Printf("Successfully exported to %s\n", outputPath)
 }
 
-func runWhois(target string) {
-	result, err := whois.Lookup(target)
+func runWhois(target string, includeRaw bool) {
+	result, err := whois.Lookup(target, includeRaw)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

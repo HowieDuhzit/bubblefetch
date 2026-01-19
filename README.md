@@ -559,6 +559,7 @@ Options:
   --image-export string       Export as image: png, svg, or html
   -o, --image-output string   Image output path (default: bubblefetch.{format})
   -W, --who string            Domain scan (WHOIS + DNS records)
+  -R, --who-raw               Include raw WHOIS output
   -v, --version               Print version information
   -h, --help                  Show help message
 

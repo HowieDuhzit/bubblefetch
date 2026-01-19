@@ -14,13 +14,14 @@ const (
 )
 
 // Lookup performs a WHOIS lookup plus DNS record scan for a target domain.
-func Lookup(target string) (string, error) {
+func Lookup(target string, includeRaw bool) (string, error) {
 	target = strings.TrimSpace(target)
 	if target == "" {
 		return "", fmt.Errorf("whois target is empty")
 	}
 
 	var b strings.Builder
+	b.WriteString("Domain Scan\n")
 	b.WriteString("Target: ")
 	b.WriteString(target)
 	b.WriteString("\n\nWHOIS\n")
@@ -29,9 +30,25 @@ func Lookup(target string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	b.WriteString(whoisText)
+	parsed := parseWhois(whoisText)
+	if len(parsed.Fields) > 0 {
+		for _, field := range parsed.Fields {
+			b.WriteString("  ")
+			b.WriteString(field.Label)
+			b.WriteString(": ")
+			b.WriteString(field.Value)
+			b.WriteString("\n")
+		}
+	} else {
+		b.WriteString("  (no structured WHOIS fields found)\n")
+	}
 	b.WriteString("\n\nDNS\n")
 	b.WriteString(lookupDNS(target))
+
+	if includeRaw && parsed.Raw != "" {
+		b.WriteString("\n\nRAW WHOIS\n")
+		b.WriteString(parsed.Raw)
+	}
 
 	return b.String(), nil
 }
@@ -121,9 +138,9 @@ func lookupDNS(target string) string {
 	if ip := net.ParseIP(target); ip != nil {
 		hosts, err := net.LookupAddr(target)
 		if err != nil || len(hosts) == 0 {
-			return "PTR: (none)\n"
+			return "  PTR: (none)\n"
 		}
-		return "PTR: " + strings.Join(hosts, ", ") + "\n"
+		return "  PTR: " + strings.Join(hosts, ", ") + "\n"
 	}
 
 	var b strings.Builder
@@ -139,21 +156,21 @@ func lookupDNS(target string) string {
 			}
 		}
 		if len(a) > 0 {
-			b.WriteString("A: ")
+			b.WriteString("  A: ")
 			b.WriteString(strings.Join(a, ", "))
 			b.WriteString("\n")
 		}
 		if len(aaaa) > 0 {
-			b.WriteString("AAAA: ")
+			b.WriteString("  AAAA: ")
 			b.WriteString(strings.Join(aaaa, ", "))
 			b.WriteString("\n")
 		}
 	} else {
-		b.WriteString("A/AAAA: (none)\n")
+		b.WriteString("  A/AAAA: (none)\n")
 	}
 
 	if cname, err := net.LookupCNAME(target); err == nil && cname != "" {
-		b.WriteString("CNAME: ")
+		b.WriteString("  CNAME: ")
 		b.WriteString(cname)
 		b.WriteString("\n")
 	}
@@ -163,7 +180,7 @@ func lookupDNS(target string) string {
 		for _, record := range mx {
 			records = append(records, fmt.Sprintf("%d %s", record.Pref, record.Host))
 		}
-		b.WriteString("MX: ")
+		b.WriteString("  MX: ")
 		b.WriteString(strings.Join(records, ", "))
 		b.WriteString("\n")
 	}
@@ -173,19 +190,131 @@ func lookupDNS(target string) string {
 		for _, record := range ns {
 			records = append(records, record.Host)
 		}
-		b.WriteString("NS: ")
+		b.WriteString("  NS: ")
 		b.WriteString(strings.Join(records, ", "))
 		b.WriteString("\n")
 	}
 
 	if txt, err := net.LookupTXT(target); err == nil && len(txt) > 0 {
-		b.WriteString("TXT:\n")
+		b.WriteString("  TXT:\n")
 		for _, record := range txt {
-			b.WriteString("  - ")
+			b.WriteString("    - ")
 			b.WriteString(record)
 			b.WriteString("\n")
 		}
 	}
 
 	return b.String()
+}
+
+type whoisField struct {
+	Label string
+	Value string
+}
+
+type whoisParsed struct {
+	Fields []whoisField
+	Raw    string
+}
+
+func parseWhois(raw string) whoisParsed {
+	lines := strings.Split(raw, "\n")
+	rawTrim := strings.TrimSpace(raw)
+
+	var registrar string
+	var created string
+	var updated string
+	var expires string
+	var domainID string
+	var statuses []string
+	var nameServers []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "%") || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.ToLower(strings.TrimSpace(parts[0]))
+		value := strings.TrimSpace(parts[1])
+		if value == "" {
+			continue
+		}
+
+		switch {
+		case key == "registrar":
+			if registrar == "" {
+				registrar = value
+			}
+		case key == "registry domain id" || key == "domain id":
+			if domainID == "" {
+				domainID = value
+			}
+		case key == "creation date" || key == "created" || key == "registered on":
+			if created == "" {
+				created = value
+			}
+		case key == "updated date" || key == "last updated" || key == "updated":
+			if updated == "" {
+				updated = value
+			}
+		case key == "registry expiry date" || key == "expiration date" || key == "expiry date" || key == "paid-till":
+			if expires == "" {
+				expires = value
+			}
+		case key == "domain status" || key == "status":
+			statuses = append(statuses, value)
+		case key == "name server" || key == "nserver":
+			nameServers = append(nameServers, value)
+		}
+	}
+
+	fields := []whoisField{}
+	if registrar != "" {
+		fields = append(fields, whoisField{Label: "Registrar", Value: registrar})
+	}
+	if domainID != "" {
+		fields = append(fields, whoisField{Label: "Registry ID", Value: domainID})
+	}
+	if created != "" {
+		fields = append(fields, whoisField{Label: "Created", Value: created})
+	}
+	if updated != "" {
+		fields = append(fields, whoisField{Label: "Updated", Value: updated})
+	}
+	if expires != "" {
+		fields = append(fields, whoisField{Label: "Expires", Value: expires})
+	}
+	if len(statuses) > 0 {
+		fields = append(fields, whoisField{Label: "Status", Value: strings.Join(unique(statuses), ", ")})
+	}
+	if len(nameServers) > 0 {
+		fields = append(fields, whoisField{Label: "Name Servers", Value: strings.Join(unique(nameServers), ", ")})
+	}
+
+	return whoisParsed{
+		Fields: fields,
+		Raw:    rawTrim,
+	}
+}
+
+func unique(values []string) []string {
+	seen := make(map[string]struct{}, len(values))
+	result := make([]string, 0, len(values))
+	for _, value := range values {
+		v := strings.TrimSpace(value)
+		if v == "" {
+			continue
+		}
+		if _, ok := seen[v]; ok {
+			continue
+		}
+		seen[v] = struct{}{}
+		result = append(result, v)
+	}
+	return result
 }
