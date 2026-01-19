@@ -103,6 +103,7 @@ modules:
   - gpu
   - memory
   - localip
+  # - costs
 EOF
 
 # Use custom config

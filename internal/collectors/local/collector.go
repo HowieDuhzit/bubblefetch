@@ -6,11 +6,11 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/howieduhzit/bubblefetch/internal/collectors"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/mem"
-	"github.com/howieduhzit/bubblefetch/internal/collectors"
 )
 
 type LocalCollector struct {
@@ -27,16 +27,27 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 	info := &collectors.SystemInfo{}
 
 	// Collect fast env vars immediately
+	start := time.Now()
 	info.Shell = os.Getenv("SHELL")
 	if info.Shell == "" {
 		info.Shell = "unknown"
 	}
+	collectors.AddModuleCost(info, "Shell", time.Since(start))
+
+	start = time.Now()
 	info.Terminal = os.Getenv("TERM")
 	if info.Terminal == "" {
 		info.Terminal = "unknown"
 	}
+	collectors.AddModuleCost(info, "Terminal", time.Since(start))
+
+	start = time.Now()
 	info.DE = os.Getenv("XDG_CURRENT_DESKTOP")
+	collectors.AddModuleCost(info, "DE", time.Since(start))
+
+	start = time.Now()
 	info.WM = os.Getenv("XDG_SESSION_TYPE")
+	collectors.AddModuleCost(info, "WM", time.Since(start))
 
 	// Collect slower metrics in parallel
 	type result struct {
@@ -49,6 +60,15 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 		batInfo  collectors.BatteryInfo
 		localIP  string
 		publicIP string
+		hostDur  time.Duration
+		cpuDur   time.Duration
+		memDur   time.Duration
+		diskDur  time.Duration
+		gpuDur   time.Duration
+		netDur   time.Duration
+		batDur   time.Duration
+		localDur time.Duration
+		pubDur   time.Duration
 	}
 
 	resultChan := make(chan result, 1)
@@ -60,49 +80,67 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 		done := make(chan bool, 9)
 
 		go func() {
+			start := time.Now()
 			r.hostInfo, _ = host.Info()
+			r.hostDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.cpuInfo, _ = cpu.Info()
+			r.cpuDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.memInfo, _ = mem.VirtualMemory()
+			r.memDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.diskInfo, _ = disk.Usage("/")
+			r.diskDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.gpuInfo = detectGPU()
+			r.gpuDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.netInfo = detectNetwork()
+			r.netDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.batInfo = detectBattery()
+			r.batDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			r.localIP = getLocalIP()
+			r.localDur = time.Since(start)
 			done <- true
 		}()
 
 		go func() {
+			start := time.Now()
 			if c.enablePublicIP {
 				r.publicIP = detectPublicIP()
 			}
+			r.pubDur = time.Since(start)
 			done <- true
 		}()
 
@@ -123,6 +161,10 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 		info.Kernel = r.hostInfo.KernelVersion
 		info.Hostname = r.hostInfo.Hostname
 		info.Uptime = formatUptime(r.hostInfo.Uptime)
+		collectors.AddModuleCost(info, "OS", r.hostDur)
+		collectors.AddModuleCost(info, "Kernel", r.hostDur)
+		collectors.AddModuleCost(info, "Host", r.hostDur)
+		collectors.AddModuleCost(info, "Uptime", r.hostDur)
 	}
 
 	if len(r.cpuInfo) > 0 {
@@ -130,6 +172,7 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 	} else {
 		info.CPU = runtime.GOARCH
 	}
+	collectors.AddModuleCost(info, "CPU", r.cpuDur)
 
 	if r.memInfo != nil {
 		info.Memory = collectors.MemoryInfo{
@@ -137,6 +180,7 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 			Total: r.memInfo.Total,
 		}
 	}
+	collectors.AddModuleCost(info, "Memory", r.memDur)
 
 	if r.diskInfo != nil {
 		info.Disk = collectors.DiskInfo{
@@ -144,12 +188,20 @@ func (c *LocalCollector) Collect() (*collectors.SystemInfo, error) {
 			Total: r.diskInfo.Total,
 		}
 	}
+	collectors.AddModuleCost(info, "Disk", r.diskDur)
 
 	info.GPU = r.gpuInfo
 	info.Network = r.netInfo
 	info.Battery = r.batInfo
 	info.LocalIP = r.localIP
 	info.PublicIP = r.publicIP
+	collectors.AddModuleCost(info, "GPU", r.gpuDur)
+	collectors.AddModuleCost(info, "Network", r.netDur)
+	collectors.AddModuleCost(info, "Local IP", r.localDur)
+	collectors.AddModuleCost(info, "Battery", r.batDur)
+	if c.enablePublicIP {
+		collectors.AddModuleCost(info, "Public IP", r.pubDur)
+	}
 
 	return info, nil
 }

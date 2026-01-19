@@ -18,6 +18,22 @@ Example script:
 echo '{"label":"Weather","value":"72°F","icon":"󰖐"}'
 ```
 
+Example with git context (branch, dirty, ahead/behind, root):
+
+```bash
+#!/usr/bin/env bash
+root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+[[ -z "$root" ]] && exit 0
+branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached")"
+dirty="clean"
+git diff --quiet --ignore-submodules -- || dirty="dirty"
+counts="$(git rev-list --left-right --count @{upstream}...HEAD 2>/dev/null || echo "0\t0")"
+behind="$(printf "%s" "$counts" | awk '{print $1}')"
+ahead="$(printf "%s" "$counts" | awk '{print $2}')"
+value="Branch: ${branch} · ${dirty} · ↑${ahead} ↓${behind}\nRoot: ${root}"
+printf '{\"label\":\"Git\",\"icon\":\"\",\"value\":\"%s\"}\n' "$value"
+```
+
 Make it executable and install:
 
 ```bash

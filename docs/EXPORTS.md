@@ -26,7 +26,10 @@ The JSON output is a single object with these fields:
   "Network": [{ "Interface": "string", "IPv4": "string", "IPv6": "string", "MAC": "string" }],
   "Battery": { "Present": false, "Percentage": 0, "IsCharging": false, "TimeRemain": "string" },
   "LocalIP": "string",
-  "PublicIP": "string"
+  "PublicIP": "string",
+  "ModuleCosts": [
+    { "Name": "CPU", "DurationMS": 0.12 }
+  ]
 }
 ```
 

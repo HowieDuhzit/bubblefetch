@@ -72,6 +72,8 @@ func Factory(name string) Module {
 		return &PublicIPModule{}
 	case "battery":
 		return &BatteryModule{}
+	case "costs":
+		return &ModuleCostModule{}
 	default:
 		return nil
 	}

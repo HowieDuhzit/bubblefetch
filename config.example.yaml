@@ -10,7 +10,7 @@ remote: ""
 
 # Modules to display (in order)
 # Available modules: os, kernel, hostname, uptime, cpu, gpu, memory, disk,
-#                    shell, terminal, de, wm, network, localip, publicip, battery
+#                    shell, terminal, de, wm, network, localip, publicip, battery, costs
 modules:
   - os
   - kernel
@@ -26,6 +26,7 @@ modules:
   - wm
   - localip
   - battery
+  # - costs   # Show per-module timing
 
 # Privacy: Public IP detection (disabled by default)
 # Set to true to fetch and display your public IP address

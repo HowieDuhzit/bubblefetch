@@ -2,6 +2,7 @@ package ui
 
 import (
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/howieduhzit/bubblefetch/internal/collectors"
@@ -37,8 +38,13 @@ func Render(cfg *config.Config, info *collectors.SystemInfo, err error) string {
 		if module == nil {
 			continue
 		}
+		start := time.Now()
 		rendered := module.Render(info, styles)
+		renderDuration := time.Since(start)
 		if rendered != "" {
+			if !collectors.HasModuleCost(info, module.Name()) {
+				collectors.AddModuleCost(info, module.Name(), renderDuration)
+			}
 			moduleLines = append(moduleLines, rendered)
 		}
 	}

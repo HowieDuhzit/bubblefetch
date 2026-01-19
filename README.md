@@ -66,6 +66,7 @@ See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 - **🔎 Domain Scan**: WHOIS + DNS lookup via `--who`
 - **📤 Export Modes**: Export to JSON, YAML, or plain text
 - **📊 Benchmark Mode**: Measure collection performance (text or JSON output)
+- **📈 Module Cost**: Visualize per-module timing with the `costs` module
 - **⚙️ Highly Customizable**: YAML config, custom themes, modular system info display
 
 ## Documentation
@@ -252,6 +253,14 @@ chmod +x ~/.config/bubblefetch/plugins/external/weather.sh
 
 Add `weather` to your `modules` list.
 
+Git context example (branch, dirty, ahead/behind, root):
+
+```bash
+mkdir -p ~/.config/bubblefetch/plugins/external
+cp plugins/examples/external/git-context.sh ~/.config/bubblefetch/plugins/external/
+chmod +x ~/.config/bubblefetch/plugins/external/git-context.sh
+```
+
 Go plugins (power users):
 
 ```bash
@@ -394,6 +403,7 @@ modules:
   - localip
   # - publicip  # Requires enable_public_ip: true
   - battery
+  # - costs     # Show per-module timing
 
 # Privacy: Public IP detection (disabled by default)
 enable_public_ip: false
@@ -401,11 +411,15 @@ enable_public_ip: false
 # Plugin directory (custom modules)
 plugin_dir: ~/.config/bubblefetch/plugins
 
+# External module timeout (ms)
+external_module_timeout_ms: 250
+
 # SSH configuration for remote systems
 ssh:
   port: 22
   user: ""           # Leave empty to use current user
   key_path: ""       # Leave empty to use default (~/.ssh/id_rsa)
+  safe_mode: false   # Read-only remote commands
 ```
 
 ### Configuration Options
@@ -416,10 +430,12 @@ ssh:
 | `modules` | array | (all) | List of modules to display |
 | `enable_public_ip` | bool | `false` | Enable public IP detection |
 | `plugin_dir` | string | `~/.config/bubblefetch/plugins` | Plugin directory path |
+| `external_module_timeout_ms` | int | `250` | External module timeout (ms) |
 | `remote` | string | `""` | Remote system (SSH) |
 | `ssh.port` | int | `22` | SSH port |
 | `ssh.user` | string | `""` | SSH username |
 | `ssh.key_path` | string | `""` | SSH private key path |
+| `ssh.safe_mode` | bool | `false` | Read-only SSH commands |
 
 ## Themes
 
@@ -518,6 +534,7 @@ Available system information modules:
 - `localip` - Local IP address
 - `publicip` - Public IP address (requires `enable_public_ip: true`)
 - `battery` - Battery status and percentage (laptops only)
+- `costs` - Per-module timing breakdown
 
 Configure module order in your config file.
 

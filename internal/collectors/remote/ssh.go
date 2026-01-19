@@ -316,6 +316,7 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 	}
 
 	info := &collectors.SystemInfo{}
+	costs := make(map[string]time.Duration)
 
 	// Run commands in parallel
 	type cmdResult struct {
@@ -346,7 +347,9 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 
 	results := make(map[string]string)
 	for _, cmd := range commands {
+		start := time.Now()
 		output, err := c.runCommand(cmd.cmd)
+		costs[cmd.name] = time.Since(start)
 		clean := strings.TrimSpace(output)
 		if clean != "" || err == nil {
 			results[cmd.name] = clean
@@ -368,6 +371,7 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 	c.parseGPU(info, results["gpu"])
 	c.parseNetwork(info, results["network"])
 	c.parseBattery(info, results["battery"])
+	addRemoteCosts(info, costs)
 
 	return info, nil
 }
@@ -405,10 +409,13 @@ func escapeSingleQuotes(input string) string {
 
 func (c *SSHCollector) collectSafe() (*collectors.SystemInfo, error) {
 	info := &collectors.SystemInfo{}
+	costs := make(map[string]time.Duration)
 
-	first := func(cmds ...string) string {
+	first := func(name string, cmds ...string) string {
 		for _, cmd := range cmds {
+			start := time.Now()
 			out, err := c.runCommandRaw(cmd)
+			costs[name] += time.Since(start)
 			if err != nil {
 				continue
 			}
@@ -420,12 +427,13 @@ func (c *SSHCollector) collectSafe() (*collectors.SystemInfo, error) {
 		return ""
 	}
 
-	info.OS = c.parseOSValue(first("cat /etc/os-release", "cat /usr/lib/os-release", "uname -s"))
-	info.Kernel = first("cat /proc/sys/kernel/osrelease", "uname -r")
-	info.Hostname = first("cat /proc/sys/kernel/hostname", "cat /etc/hostname", "hostname")
-	c.parseUptime(info, first("cat /proc/uptime"))
-	c.parseCPU(info, first("cat /proc/cpuinfo"))
-	c.parseMemory(info, first("cat /proc/meminfo"))
+	info.OS = c.parseOSValue(first("os", "cat /etc/os-release", "cat /usr/lib/os-release", "uname -s"))
+	info.Kernel = first("kernel", "cat /proc/sys/kernel/osrelease", "uname -r")
+	info.Hostname = first("hostname", "cat /proc/sys/kernel/hostname", "cat /etc/hostname", "hostname")
+	c.parseUptime(info, first("uptime", "cat /proc/uptime"))
+	c.parseCPU(info, first("cpu", "cat /proc/cpuinfo"))
+	c.parseMemory(info, first("memory", "cat /proc/meminfo"))
+	addRemoteCosts(info, costs)
 
 	return info, nil
 }
@@ -448,6 +456,45 @@ func (c *SSHCollector) parseCPU(info *collectors.SystemInfo, output string) {
 	}
 	if info.CPU == "" {
 		info.CPU = strings.TrimSpace(output)
+	}
+}
+
+func addRemoteCosts(info *collectors.SystemInfo, costs map[string]time.Duration) {
+	if info == nil {
+		return
+	}
+	for key, duration := range costs {
+		switch key {
+		case "os":
+			collectors.AddModuleCost(info, "OS", duration)
+		case "kernel":
+			collectors.AddModuleCost(info, "Kernel", duration)
+		case "hostname":
+			collectors.AddModuleCost(info, "Host", duration)
+		case "uptime":
+			collectors.AddModuleCost(info, "Uptime", duration)
+		case "cpu":
+			collectors.AddModuleCost(info, "CPU", duration)
+		case "memory":
+			collectors.AddModuleCost(info, "Memory", duration)
+		case "disk":
+			collectors.AddModuleCost(info, "Disk", duration)
+		case "shell":
+			collectors.AddModuleCost(info, "Shell", duration)
+		case "term":
+			collectors.AddModuleCost(info, "Terminal", duration)
+		case "de":
+			collectors.AddModuleCost(info, "DE", duration)
+		case "wm":
+			collectors.AddModuleCost(info, "WM", duration)
+		case "gpu":
+			collectors.AddModuleCost(info, "GPU", duration)
+		case "network":
+			collectors.AddModuleCost(info, "Network", duration)
+			collectors.AddModuleCost(info, "Local IP", duration)
+		case "battery":
+			collectors.AddModuleCost(info, "Battery", duration)
+		}
 	}
 }
 

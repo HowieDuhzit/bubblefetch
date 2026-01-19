@@ -2,25 +2,26 @@ package collectors
 
 // SystemInfo holds all collected system information
 type SystemInfo struct {
-	OS         string
-	Kernel     string
-	Hostname   string
-	Uptime     string
-	CPU        string
-	Memory     MemoryInfo
-	Disk       DiskInfo
-	Shell      string
-	Terminal   string
-	Resolution string
-	DE         string
-	WM         string
-	Theme      string
-	Icons      string
-	GPU        []string
-	Network    []NetworkInfo
-	Battery    BatteryInfo
-	LocalIP    string
-	PublicIP   string
+	OS          string
+	Kernel      string
+	Hostname    string
+	Uptime      string
+	CPU         string
+	Memory      MemoryInfo
+	Disk        DiskInfo
+	Shell       string
+	Terminal    string
+	Resolution  string
+	DE          string
+	WM          string
+	Theme       string
+	Icons       string
+	GPU         []string
+	Network     []NetworkInfo
+	Battery     BatteryInfo
+	LocalIP     string
+	PublicIP    string
+	ModuleCosts []ModuleCost
 }
 
 type MemoryInfo struct {
@@ -41,10 +42,15 @@ type NetworkInfo struct {
 }
 
 type BatteryInfo struct {
-	Present     bool
-	Percentage  float64
-	IsCharging  bool
-	TimeRemain  string
+	Present    bool
+	Percentage float64
+	IsCharging bool
+	TimeRemain string
+}
+
+type ModuleCost struct {
+	Name       string
+	DurationMS float64
 }
 
 // Collector interface for gathering system information

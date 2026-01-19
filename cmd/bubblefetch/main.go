@@ -82,6 +82,7 @@ Options:
 
 Notes:
   - If --image-export is omitted, the format is inferred from --image-output extension.
+  - Add "costs" to your modules list to display per-module timing.
 `)
 	}
 	flag.Parse()
