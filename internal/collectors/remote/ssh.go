@@ -80,8 +80,8 @@ func (c *SSHCollector) Connect() error {
 	}
 
 	sshConfig := &ssh.ClientConfig{
-		User: user,
-		Auth: authMethods,
+		User:            user,
+		Auth:            authMethods,
 		HostKeyCallback: hostKeyCallback,
 		Timeout:         10 * time.Second,
 	}
@@ -311,6 +311,10 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 		defer c.client.Close()
 	}
 
+	if c.config != nil && c.config.SSH.SafeMode {
+		return c.collectSafe()
+	}
+
 	info := &collectors.SystemInfo{}
 
 	// Run commands in parallel
@@ -379,6 +383,17 @@ func (c *SSHCollector) runCommand(cmd string) (string, error) {
 	return string(output), err
 }
 
+func (c *SSHCollector) runCommandRaw(cmd string) (string, error) {
+	session, err := c.client.NewSession()
+	if err != nil {
+		return "", err
+	}
+	defer session.Close()
+
+	output, err := session.CombinedOutput(cmd)
+	return string(output), err
+}
+
 func wrapRemoteCommand(cmd string) string {
 	prefix := "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; LC_ALL=C; "
 	return "/bin/sh -lc '" + escapeSingleQuotes(prefix+cmd) + "'"
@@ -386,6 +401,54 @@ func wrapRemoteCommand(cmd string) string {
 
 func escapeSingleQuotes(input string) string {
 	return strings.ReplaceAll(input, "'", "'\"'\"'")
+}
+
+func (c *SSHCollector) collectSafe() (*collectors.SystemInfo, error) {
+	info := &collectors.SystemInfo{}
+
+	first := func(cmds ...string) string {
+		for _, cmd := range cmds {
+			out, err := c.runCommandRaw(cmd)
+			if err != nil {
+				continue
+			}
+			clean := strings.TrimSpace(out)
+			if clean != "" {
+				return clean
+			}
+		}
+		return ""
+	}
+
+	info.OS = c.parseOSValue(first("cat /etc/os-release", "cat /usr/lib/os-release", "uname -s"))
+	info.Kernel = first("cat /proc/sys/kernel/osrelease", "uname -r")
+	info.Hostname = first("cat /proc/sys/kernel/hostname", "cat /etc/hostname", "hostname")
+	c.parseUptime(info, first("cat /proc/uptime"))
+	c.parseCPU(info, first("cat /proc/cpuinfo"))
+	c.parseMemory(info, first("cat /proc/meminfo"))
+
+	return info, nil
+}
+
+func (c *SSHCollector) parseOSValue(output string) string {
+	info := &collectors.SystemInfo{}
+	c.parseOS(info, output)
+	return info.OS
+}
+
+func (c *SSHCollector) parseCPU(info *collectors.SystemInfo, output string) {
+	for _, line := range strings.Split(output, "\n") {
+		if strings.HasPrefix(line, "model name") {
+			parts := strings.SplitN(line, ":", 2)
+			if len(parts) == 2 {
+				info.CPU = strings.TrimSpace(parts[1])
+			}
+			return
+		}
+	}
+	if info.CPU == "" {
+		info.CPU = strings.TrimSpace(output)
+	}
 }
 
 func (c *SSHCollector) parseOS(info *collectors.SystemInfo, output string) {

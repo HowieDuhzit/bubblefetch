@@ -9,29 +9,29 @@ import (
 )
 
 type Theme struct {
-	Name       string     `json:"name"`
-	Colors     Colors     `json:"colors"`
-	ASCII      string     `json:"ascii"`
-	Layout     Layout     `json:"layout"`
-	asciiAuto  bool
+	Name      string `json:"name"`
+	Colors    Colors `json:"colors"`
+	ASCII     string `json:"ascii"`
+	Layout    Layout `json:"layout"`
+	asciiAuto bool
 }
 
 type Colors struct {
-	Primary     string `json:"primary"`
-	Secondary   string `json:"secondary"`
-	Accent      string `json:"accent"`
-	Label       string `json:"label"`
-	Value       string `json:"value"`
-	Border      string `json:"border"`
-	Background  string `json:"background"`
+	Primary    string `json:"primary"`
+	Secondary  string `json:"secondary"`
+	Accent     string `json:"accent"`
+	Label      string `json:"label"`
+	Value      string `json:"value"`
+	Border     string `json:"border"`
+	Background string `json:"background"`
 }
 
 type Layout struct {
-	ShowASCII    bool   `json:"show_ascii"`
-	ASCIIWidth   int    `json:"ascii_width"`
-	Separator    string `json:"separator"`
-	Padding      int    `json:"padding"`
-	BorderStyle  string `json:"border_style"`
+	ShowASCII   bool   `json:"show_ascii"`
+	ASCIIWidth  int    `json:"ascii_width"`
+	Separator   string `json:"separator"`
+	Padding     int    `json:"padding"`
+	BorderStyle string `json:"border_style"`
 }
 
 // Styles contains lipgloss styles for the theme
@@ -99,7 +99,7 @@ func defaultTheme() *Theme {
 			Border:     "#585b70",
 			Background: "#1e1e2e",
 		},
-		ASCII: GetASCIIArt(detectedOS),
+		ASCII:     GetASCIIArt(detectedOS),
 		asciiAuto: true,
 		Layout: Layout{
 			ShowASCII:   true,

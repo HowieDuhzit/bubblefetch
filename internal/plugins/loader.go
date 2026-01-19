@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"plugin"
+	"time"
 
 	"github.com/howieduhzit/bubblefetch/internal/collectors"
 	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
@@ -27,13 +28,15 @@ func (p *PluginModule) Render(info *collectors.SystemInfo, styles theme.Styles) 
 
 // PluginManager manages loading and accessing plugins
 type PluginManager struct {
-	plugins map[string]modules.Module
+	plugins         map[string]modules.Module
+	externalTimeout time.Duration
 }
 
 // NewPluginManager creates a new plugin manager
-func NewPluginManager() *PluginManager {
+func NewPluginManager(externalTimeout time.Duration) *PluginManager {
 	return &PluginManager{
-		plugins: make(map[string]modules.Module),
+		plugins:         make(map[string]modules.Module),
+		externalTimeout: externalTimeout,
 	}
 }
 
@@ -65,6 +68,10 @@ func (pm *PluginManager) LoadPlugins(pluginDir string) error {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load plugin %s: %v\n", entry.Name(), err)
 			continue
 		}
+	}
+
+	if err := pm.LoadExternalPlugins(filepath.Join(pluginDir, "external")); err != nil {
+		return err
 	}
 
 	return nil

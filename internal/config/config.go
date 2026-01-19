@@ -9,12 +9,13 @@ import (
 )
 
 type Config struct {
-	Theme          string    `yaml:"theme"`
-	Remote         string    `yaml:"remote"`
-	Modules        []string  `yaml:"modules"`
-	SSH            SSHConfig `yaml:"ssh"`
-	EnablePublicIP bool      `yaml:"enable_public_ip"`
-	PluginDir      string    `yaml:"plugin_dir"`
+	Theme                   string    `yaml:"theme"`
+	Remote                  string    `yaml:"remote"`
+	Modules                 []string  `yaml:"modules"`
+	SSH                     SSHConfig `yaml:"ssh"`
+	EnablePublicIP          bool      `yaml:"enable_public_ip"`
+	PluginDir               string    `yaml:"plugin_dir"`
+	ExternalModuleTimeoutMS int       `yaml:"external_module_timeout_ms"`
 }
 
 type SSHConfig struct {
@@ -22,6 +23,7 @@ type SSHConfig struct {
 	Port           int    `yaml:"port"`
 	KeyPath        string `yaml:"key_path"`
 	KnownHostsPath string `yaml:"known_hosts_path"`
+	SafeMode       bool   `yaml:"safe_mode"`
 }
 
 // Load loads configuration from the specified path or default location
@@ -56,6 +58,9 @@ func Load(configPath string) (*Config, error) {
 	if cfg.SSH.Port == 0 {
 		cfg.SSH.Port = 22
 	}
+	if cfg.ExternalModuleTimeoutMS == 0 {
+		cfg.ExternalModuleTimeoutMS = 250
+	}
 	if len(cfg.Modules) == 0 {
 		cfg.Modules = defaultModules()
 	}
@@ -70,6 +75,7 @@ func defaultConfig() *Config {
 		SSH: SSHConfig{
 			Port: 22,
 		},
+		ExternalModuleTimeoutMS: 250,
 	}
 }
 

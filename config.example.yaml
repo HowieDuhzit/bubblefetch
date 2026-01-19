@@ -31,9 +31,16 @@ modules:
 # Set to true to fetch and display your public IP address
 enable_public_ip: false
 
+# Plugin directory (Go .so plugins and external modules)
+plugin_dir: ""
+
+# External module timeout (ms)
+external_module_timeout_ms: 250
+
 # SSH configuration for remote systems
 ssh:
   user: ""           # SSH username (defaults to current user)
   port: 22           # SSH port
   key_path: ""       # Path to SSH private key (defaults to ~/.ssh/id_rsa)
   known_hosts_path: ""  # Path to known_hosts file
+  safe_mode: false      # Avoid shell pipelines and prefer read-only commands

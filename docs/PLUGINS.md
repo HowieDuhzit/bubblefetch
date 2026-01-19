@@ -1,18 +1,75 @@
 # bubblefetch Plugin System
 
-The bubblefetch plugin system allows you to create custom display modules using Go plugins (.so files). Plugins extend bubblefetch with new modules that can display custom information in the TUI.
+The bubblefetch plugin system supports two extension paths:
+
+- **External modules (recommended):** drop an executable script in `~/.config/bubblefetch/plugins/external/`
+- **Go plugins:** native `.so` plugins for power users
+
+External modules are safer and easier to ship across platforms because they are simple executables.
+
+## External Modules (Scripts)
+
+Create an executable file in `~/.config/bubblefetch/plugins/external/` and add its name (without extension) to your `modules` list.
+
+Example script:
+
+```bash
+#!/usr/bin/env bash
+echo '{"label":"Weather","value":"72°F","icon":"󰖐"}'
+```
+
+Make it executable and install:
+
+```bash
+mkdir -p ~/.config/bubblefetch/plugins/external
+chmod +x weather.sh
+cp weather.sh ~/.config/bubblefetch/plugins/external/
+```
+
+Then add to config:
+
+```yaml
+modules:
+  - os
+  - weather
+  - cpu
+```
+
+### External Module Output Protocol
+
+External modules write to stdout. If the output is JSON, bubblefetch will parse it; otherwise it renders the raw text.
+
+Supported JSON fields:
+
+```json
+{
+  "label": "Weather",
+  "value": "72°F",
+  "icon": "󰖐",
+  "separator": ": ",
+  "lines": ["Custom line 1", "Custom line 2"],
+  "raw": "Fallback text"
+}
+```
+
+Notes:
+- `label` + `value` renders with theme colors.
+- `icon` is optional and shown like built-in modules.
+- `lines` renders multiple lines; `raw`/`text` are used as fallback.
+- Timeout is controlled by `external_module_timeout_ms` (default: 250ms).
+- Bubblefetch sets `BUBBLEFETCH_FORMAT=json` and `BUBBLEFETCH_MODULE=<name>` env vars.
 
 ## Platform Support
 
-**Supported Platforms:**
+**External modules:** ✅ Works anywhere bubblefetch runs.
+
+**Go plugins (.so):**
 - ✅ Linux
 - ✅ macOS
 - ✅ FreeBSD
+- ❌ Windows (Go plugin limitation)
 
-**Not Supported:**
-- ❌ Windows (Go plugin system limitation)
-
-For Windows users, we recommend contributing new modules directly to the bubblefetch core instead.
+On Windows, use external modules or contribute a built-in module.
 
 ## Quick Start
 
@@ -314,9 +371,18 @@ Custom directory in `config.yaml`:
 plugin_dir: /path/to/my/plugins
 ```
 
+External modules live in a subfolder:
+
+```
+~/.config/bubblefetch/plugins/external/
+```
+
 ### Loading Plugins
 
-Plugins are automatically loaded from the plugin directory when bubblefetch starts. Any `.so` file in the directory will be loaded.
+Plugins are automatically loaded from the plugin directory when bubblefetch starts.
+
+- Any `.so` file in the directory is loaded as a Go plugin.
+- Any executable file in `external/` is loaded as an external module.
 
 ### Using Plugins
 

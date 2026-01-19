@@ -58,13 +58,14 @@ See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 
 ### Advanced Features
 - **🔌 Plugin System**: Extend with custom modules using Go plugins (.so files)
+- **🧩 External Modules**: Drop executable scripts in `plugins/external/`
 - **🧙 Interactive Config Wizard**: Guided setup with theme preview and module selection
 - **🖼️ Image Export**: Export as PNG (raster), SVG (vector), or HTML (webpage)
 - **🌐 Public IP Detection**: Optional public IP display (privacy-first, disabled by default)
 - **🌍 SSH Remote Support**: Fetch system info from remote systems via SSH
 - **🔎 Domain Scan**: WHOIS + DNS lookup via `--who`
 - **📤 Export Modes**: Export to JSON, YAML, or plain text
-- **📊 Benchmark Mode**: Measure collection performance
+- **📊 Benchmark Mode**: Measure collection performance (text or JSON output)
 - **⚙️ Highly Customizable**: YAML config, custom themes, modular system info display
 
 ## Documentation
@@ -73,6 +74,8 @@ See [docs/CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 - Quick setup: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 - Examples: [docs/EXAMPLES.md](docs/EXAMPLES.md)
 - Plugins: [docs/PLUGINS.md](docs/PLUGINS.md)
+- Exports schema: [docs/EXPORTS.md](docs/EXPORTS.md)
+- Remote mode: [docs/REMOTE.md](docs/REMOTE.md)
 - Performance: [docs/PERFORMANCE.md](docs/PERFORMANCE.md)
 
 ## Installation
@@ -178,6 +181,9 @@ bubblefetch --remote user@hostname
 
 # Uses your SSH config and keys automatically
 bubblefetch --remote myserver
+
+# Read-only safe mode (no shell pipelines)
+bubblefetch --remote myserver --remote-safe
 ```
 
 ### Domain Scan
@@ -208,6 +214,9 @@ bubblefetch --export json --pretty=false
 ```bash
 # Run 10 iterations and show performance stats
 bubblefetch --benchmark
+
+# JSON benchmark output
+bubblefetch --benchmark --format json
 ```
 
 ### Interactive Config Wizard
@@ -228,7 +237,22 @@ Configuration is saved to `~/.config/bubblefetch/config.yaml`
 
 ### Plugin System
 
-Create custom modules with Go plugins:
+Create custom modules with either external scripts or Go plugins.
+
+External modules (recommended):
+
+```bash
+mkdir -p ~/.config/bubblefetch/plugins/external
+cat > ~/.config/bubblefetch/plugins/external/weather.sh <<'EOF'
+#!/usr/bin/env bash
+echo '{"label":"Weather","value":"72°F","icon":"󰖐"}'
+EOF
+chmod +x ~/.config/bubblefetch/plugins/external/weather.sh
+```
+
+Add `weather` to your `modules` list.
+
+Go plugins (power users):
 
 ```bash
 # Build example plugin
@@ -248,7 +272,6 @@ modules:
 - See `docs/PLUGINS.md` for complete guide
 - Examples in `plugins/examples/`
 - Platform support: Linux, macOS, FreeBSD (not Windows)
-- Browse available plugins on the landing page plugin store (downloads via releases)
 
 Quick example:
 ```go

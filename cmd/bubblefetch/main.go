@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -25,31 +26,34 @@ import (
 )
 
 var (
-	configPath   = flag.String("config", "", "Path to config file (default: ~/.config/bubblefetch/config.yaml)")
-	configPathS  = flag.String("c", "", "Alias for --config")
-	themeName    = flag.String("theme", "", "Theme name to use")
-	themeNameS   = flag.String("t", "", "Alias for --theme")
-	remoteSys    = flag.String("remote", "", "Remote system IP/hostname to fetch info from (via SSH)")
-	remoteSysS   = flag.String("r", "", "Alias for --remote")
-	exportFmt    = flag.String("export", "", "Export format: json, yaml, or text")
-	exportFmtS   = flag.String("e", "", "Alias for --export")
-	pretty       = flag.Bool("pretty", true, "Pretty print JSON output (default: true)")
-	prettyS      = flag.Bool("p", true, "Alias for --pretty")
-	benchmark    = flag.Bool("benchmark", false, "Run benchmark mode")
-	benchmarkS   = flag.Bool("b", false, "Alias for --benchmark")
-	versionFlag  = flag.Bool("version", false, "Print version information")
-	versionFlagS = flag.Bool("v", false, "Alias for --version")
-	configWizard = flag.Bool("config-wizard", false, "Run interactive configuration wizard")
-	configWizardS = flag.Bool("w", false, "Alias for --config-wizard")
-	imageExport  = flag.String("image-export", "", "Export as image: png, svg, or html")
-	imageOutput  = flag.String("image-output", "", "Image output path (default: bubblefetch.{format})")
-	imageOutputS = flag.String("o", "", "Alias for --image-output")
-	whoisTarget  = flag.String("who", "", "Domain scan (WHOIS + DNS records)")
-	whoisTargetS = flag.String("W", "", "Alias for --who")
-	whoisRaw     = flag.Bool("who-raw", false, "Include raw WHOIS output")
-	whoisRawS    = flag.Bool("R", false, "Alias for --who-raw")
-	helpFlag     = flag.Bool("help", false, "Show help message")
-	helpFlagS    = flag.Bool("h", false, "Alias for --help")
+	configPath       = flag.String("config", "", "Path to config file (default: ~/.config/bubblefetch/config.yaml)")
+	configPathS      = flag.String("c", "", "Alias for --config")
+	themeName        = flag.String("theme", "", "Theme name to use")
+	themeNameS       = flag.String("t", "", "Alias for --theme")
+	remoteSys        = flag.String("remote", "", "Remote system IP/hostname to fetch info from (via SSH)")
+	remoteSysS       = flag.String("r", "", "Alias for --remote")
+	exportFmt        = flag.String("export", "", "Export format: json, yaml, or text")
+	exportFmtS       = flag.String("e", "", "Alias for --export")
+	pretty           = flag.Bool("pretty", true, "Pretty print JSON output (default: true)")
+	prettyS          = flag.Bool("p", true, "Alias for --pretty")
+	benchmark        = flag.Bool("benchmark", false, "Run benchmark mode")
+	benchmarkS       = flag.Bool("b", false, "Alias for --benchmark")
+	benchmarkFormat  = flag.String("format", "", "Benchmark output format: text or json")
+	benchmarkFormatS = flag.String("f", "", "Alias for --format")
+	versionFlag      = flag.Bool("version", false, "Print version information")
+	versionFlagS     = flag.Bool("v", false, "Alias for --version")
+	configWizard     = flag.Bool("config-wizard", false, "Run interactive configuration wizard")
+	configWizardS    = flag.Bool("w", false, "Alias for --config-wizard")
+	imageExport      = flag.String("image-export", "", "Export as image: png, svg, or html")
+	imageOutput      = flag.String("image-output", "", "Image output path (default: bubblefetch.{format})")
+	imageOutputS     = flag.String("o", "", "Alias for --image-output")
+	whoisTarget      = flag.String("who", "", "Domain scan (WHOIS + DNS records)")
+	whoisTargetS     = flag.String("W", "", "Alias for --who")
+	whoisRaw         = flag.Bool("who-raw", false, "Include raw WHOIS output")
+	whoisRawS        = flag.Bool("R", false, "Alias for --who-raw")
+	remoteSafe       = flag.Bool("remote-safe", false, "Use read-only SSH commands (no shell pipelines)")
+	helpFlag         = flag.Bool("help", false, "Show help message")
+	helpFlagS        = flag.Bool("h", false, "Alias for --help")
 )
 
 const Version = "0.3.0"
@@ -66,11 +70,13 @@ Options:
   -e, --export string         Export format: json, yaml, or text
   -p, --pretty                Pretty print JSON output (default: true)
   -b, --benchmark             Run benchmark mode (10 iterations)
+  -f, --format string         Benchmark output format: text or json
   -w, --config-wizard         Run interactive configuration wizard
   --image-export string       Export as image: png, svg, or html
   -o, --image-output string   Image output path (default: bubblefetch.{format})
   -W, --who string            Domain scan (WHOIS + DNS records)
   -R, --who-raw               Include raw WHOIS output
+  --remote-safe               Use read-only SSH commands (no shell pipelines)
   -v, --version               Print version information
   -h, --help                  Show help message
 
@@ -118,6 +124,9 @@ Notes:
 	if *themeName != "" {
 		cfg.Theme = *themeName
 	}
+	if *remoteSafe {
+		cfg.SSH.SafeMode = true
+	}
 
 	// Override remote if specified
 	if *remoteSys != "" {
@@ -134,7 +143,8 @@ Notes:
 		}
 	}
 	if pluginDir != "" {
-		pm := plugins.NewPluginManager()
+		timeout := time.Duration(cfg.ExternalModuleTimeoutMS) * time.Millisecond
+		pm := plugins.NewPluginManager(timeout)
 		if err := pm.LoadPlugins(pluginDir); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: error loading plugins: %v\n", err)
 		}
@@ -184,6 +194,9 @@ func normalizeFlags() {
 	if *benchmarkS && !*benchmark {
 		*benchmark = true
 	}
+	if *benchmarkFormatS != "" && *benchmarkFormat == "" {
+		*benchmarkFormat = *benchmarkFormatS
+	}
 	if *configWizardS && !*configWizard {
 		*configWizard = true
 	}
@@ -232,14 +245,18 @@ func runExportMode(cfg *config.Config) {
 		// Run benchmark
 		const runs = 10
 		var totalDuration time.Duration
+		durations := make([]time.Duration, 0, runs)
+		format := strings.ToLower(*benchmarkFormat)
+		if format == "" {
+			format = "text"
+		}
 
-		fmt.Printf("Running %d iterations...\n", runs)
 		for i := 0; i < runs; i++ {
 			start := time.Now()
 			info, err = collector.Collect()
 			duration := time.Since(start)
 			totalDuration += duration
-			fmt.Printf("Run %d: %v\n", i+1, duration)
+			durations = append(durations, duration)
 
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error collecting info: %v\n", err)
@@ -248,6 +265,47 @@ func runExportMode(cfg *config.Config) {
 		}
 
 		avgDuration := totalDuration / runs
+		if format == "json" {
+			type benchmarkResult struct {
+				Runs        int       `json:"runs"`
+				AverageMS   float64   `json:"average_ms"`
+				TotalMS     float64   `json:"total_ms"`
+				DurationsMS []float64 `json:"durations_ms"`
+				Timestamp   string    `json:"timestamp"`
+				Version     string    `json:"version"`
+				Remote      bool      `json:"remote"`
+			}
+
+			ms := func(d time.Duration) float64 {
+				return float64(d.Microseconds()) / 1000.0
+			}
+
+			out := benchmarkResult{
+				Runs:        runs,
+				AverageMS:   ms(avgDuration),
+				TotalMS:     ms(totalDuration),
+				DurationsMS: make([]float64, 0, len(durations)),
+				Timestamp:   time.Now().UTC().Format(time.RFC3339),
+				Version:     Version,
+				Remote:      cfg.Remote != "",
+			}
+			for _, d := range durations {
+				out.DurationsMS = append(out.DurationsMS, ms(d))
+			}
+
+			encoded, err := json.MarshalIndent(out, "", "  ")
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error encoding benchmark JSON: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println(string(encoded))
+			return
+		}
+
+		fmt.Printf("Running %d iterations...\n", runs)
+		for i, duration := range durations {
+			fmt.Printf("Run %d: %v\n", i+1, duration)
+		}
 		fmt.Printf("\nAverage: %v\n", avgDuration)
 		fmt.Printf("Total: %v\n", totalDuration)
 		return

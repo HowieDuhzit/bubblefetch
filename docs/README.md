@@ -9,9 +9,9 @@ then dive into examples, plugins, and performance notes.
 - `EXAMPLES.md` - Real-world usage patterns and exports
 - `PLUGINS.md` - Plugin API and authoring guide
 - `PERFORMANCE.md` - Benchmarks, speed notes, and optimization highlights
+- `EXPORTS.md` - JSON/YAML schema and export notes
+- `REMOTE.md` - Remote collection behavior and safety notes
 - `CHANGELOG.md` - Release notes and history
-
-The landing page includes a plugin store powered by `plugins/manifest.json`.
 
 ## Repo layout
 
