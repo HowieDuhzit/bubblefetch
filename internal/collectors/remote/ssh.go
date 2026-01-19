@@ -246,12 +246,21 @@ func buildSSHAuthMethods(keyPath string, identityFiles []string, identityAgent s
 		sock = os.Getenv("SSH_AUTH_SOCK")
 	}
 
-	if sock != "" {
-		conn, err := net.Dial("unix", sock)
-		if err == nil {
-			agentClient := agent.NewClient(conn)
-			methods = append(methods, ssh.PublicKeysCallback(agentClient.Signers))
+	tryAgent := func(path string) {
+		if path == "" {
+			return
 		}
+		conn, err := net.Dial("unix", path)
+		if err != nil {
+			return
+		}
+		agentClient := agent.NewClient(conn)
+		methods = append(methods, ssh.PublicKeysCallback(agentClient.Signers))
+	}
+
+	tryAgent(sock)
+	if identityAgent != "" && sock != os.Getenv("SSH_AUTH_SOCK") {
+		tryAgent(os.Getenv("SSH_AUTH_SOCK"))
 	}
 
 	keysToTry := []string{}
