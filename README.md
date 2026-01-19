@@ -247,6 +247,9 @@ bubblefetch --image-export svg --image-output sysinfo.svg
 
 # HTML export (standalone webpage)
 bubblefetch --image-export html --image-output sysinfo.html
+
+# Auto-detect format from file extension
+bf -o ~/Pictures/sysinfo.svg
 ```
 
 Perfect for:
