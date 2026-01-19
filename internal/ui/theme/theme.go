@@ -13,6 +13,7 @@ type Theme struct {
 	Colors     Colors     `json:"colors"`
 	ASCII      string     `json:"ascii"`
 	Layout     Layout     `json:"layout"`
+	asciiAuto  bool
 }
 
 type Colors struct {
@@ -76,7 +77,8 @@ func loadThemeFile(path string) (*Theme, error) {
 	}
 
 	// Auto-detect ASCII art if not set or set to "auto"
-	if theme.ASCII == "" || theme.ASCII == "auto" {
+	theme.asciiAuto = theme.ASCII == "" || theme.ASCII == "auto"
+	if theme.asciiAuto {
 		detectedOS := DetectOS()
 		theme.ASCII = GetASCIIArt(detectedOS)
 	}
@@ -98,6 +100,7 @@ func defaultTheme() *Theme {
 			Background: "#1e1e2e",
 		},
 		ASCII: GetASCIIArt(detectedOS),
+		asciiAuto: true,
 		Layout: Layout{
 			ShowASCII:   true,
 			ASCIIWidth:  30,
@@ -106,6 +109,14 @@ func defaultTheme() *Theme {
 			BorderStyle: "rounded",
 		},
 	}
+}
+
+// ApplyAutoASCII updates ASCII art when the theme is set to auto.
+func (t *Theme) ApplyAutoASCII(osName string) {
+	if t == nil || !t.asciiAuto || osName == "" {
+		return
+	}
+	t.ASCII = GetASCIIArt(osName)
 }
 
 // GetStyles creates lipgloss styles from the theme
@@ -140,4 +151,3 @@ func (t *Theme) GetStyles() Styles {
 			Padding(1, 2),
 	}
 }
-

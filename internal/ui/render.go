@@ -22,6 +22,8 @@ func Render(cfg *config.Config, info *collectors.SystemInfo, err error) string {
 		return styles.Value.Render("Error: " + err.Error())
 	}
 
+	thm.ApplyAutoASCII(info.OS)
+
 	var content strings.Builder
 
 	var asciiArt string

@@ -31,6 +31,9 @@ func NewImageExporter(info *collectors.SystemInfo, cfg *config.Config) (*ImageEx
 	if err != nil {
 		thm, _ = theme.Load("default")
 	}
+	if info != nil {
+		thm.ApplyAutoASCII(info.OS)
+	}
 
 	return &ImageExporter{
 		info:      info,
