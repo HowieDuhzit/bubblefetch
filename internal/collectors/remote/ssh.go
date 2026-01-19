@@ -320,43 +320,32 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 		err    error
 	}
 
-	commands := map[string]string{
-		"os":       "cat /etc/os-release 2>/dev/null || cat /usr/lib/os-release 2>/dev/null || uname -s",
-		"kernel":   "uname -r 2>/dev/null",
-		"hostname": "hostname 2>/dev/null || cat /etc/hostname 2>/dev/null",
-		"uptime":   "cat /proc/uptime 2>/dev/null || uptime -p 2>/dev/null || uptime",
-		"cpu":      "awk -F: '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null | xargs || lscpu 2>/dev/null | awk -F: '/Model name/ {print $2}'",
-		"memory":   "awk '/MemTotal|MemAvailable/ {print}' /proc/meminfo 2>/dev/null",
-		"disk":     "df -B1 / 2>/dev/null | awk 'NR==2 {print}'",
-		"shell":    "echo $SHELL",
-		"term":     "echo $TERM",
-		"de":       "echo $XDG_CURRENT_DESKTOP",
-		"wm":       "echo $XDG_SESSION_TYPE",
-		"gpu":      "lspci 2>/dev/null | grep -iE 'vga|3d|display'",
-		"network":  "ip -o addr show 2>/dev/null | grep -v 'lo' | grep 'inet '",
-		"battery":  "cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1",
+	commands := []struct {
+		name string
+		cmd  string
+	}{
+		{"os", "cat /etc/os-release 2>/dev/null || cat /usr/lib/os-release 2>/dev/null || uname -s"},
+		{"kernel", "uname -r 2>/dev/null"},
+		{"hostname", "hostname 2>/dev/null || cat /etc/hostname 2>/dev/null"},
+		{"uptime", "cat /proc/uptime 2>/dev/null || uptime -p 2>/dev/null || uptime"},
+		{"cpu", "awk -F: '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null | xargs || lscpu 2>/dev/null | awk -F: '/Model name/ {print $2}'"},
+		{"memory", "awk '/MemTotal|MemAvailable/ {print}' /proc/meminfo 2>/dev/null"},
+		{"disk", "df -B1 / 2>/dev/null | awk 'NR==2 {print}'"},
+		{"shell", "echo $SHELL"},
+		{"term", "echo $TERM"},
+		{"de", "echo $XDG_CURRENT_DESKTOP"},
+		{"wm", "echo $XDG_SESSION_TYPE"},
+		{"gpu", "lspci 2>/dev/null | grep -iE 'vga|3d|display'"},
+		{"network", "ip -o addr show 2>/dev/null | grep -v 'lo' | grep 'inet '"},
+		{"battery", "cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1"},
 	}
 
-	resultChan := make(chan cmdResult, len(commands))
-
-	for name, cmd := range commands {
-		go func(n, command string) {
-			output, err := c.runCommand(command)
-			resultChan <- cmdResult{name: n, output: output, err: err}
-		}(name, cmd)
-	}
-
-	// Collect all results
 	results := make(map[string]string)
-	for i := 0; i < len(commands); i++ {
-		result := <-resultChan
-		output := strings.TrimSpace(result.output)
-		if output != "" {
-			results[result.name] = output
-			continue
-		}
-		if result.err == nil {
-			results[result.name] = output
+	for _, cmd := range commands {
+		output, err := c.runCommand(cmd.cmd)
+		clean := strings.TrimSpace(output)
+		if clean != "" || err == nil {
+			results[cmd.name] = clean
 		}
 	}
 
