@@ -321,11 +321,11 @@ func (c *SSHCollector) Collect() (*collectors.SystemInfo, error) {
 	}
 
 	commands := map[string]string{
-		"os":       "cat /etc/os-release 2>/dev/null || uname -s",
-		"kernel":   "uname -r",
-		"hostname": "hostname",
-		"uptime":   "cat /proc/uptime 2>/dev/null || uptime",
-		"cpu":      "awk -F: '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null | xargs",
+		"os":       "cat /etc/os-release 2>/dev/null || cat /usr/lib/os-release 2>/dev/null || uname -s",
+		"kernel":   "uname -r 2>/dev/null",
+		"hostname": "hostname 2>/dev/null || cat /etc/hostname 2>/dev/null",
+		"uptime":   "cat /proc/uptime 2>/dev/null || uptime -p 2>/dev/null || uptime",
+		"cpu":      "awk -F: '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null | xargs || lscpu 2>/dev/null | awk -F: '/Model name/ {print $2}'",
 		"memory":   "awk '/MemTotal|MemAvailable/ {print}' /proc/meminfo 2>/dev/null",
 		"disk":     "df -B1 / 2>/dev/null | awk 'NR==2 {print}'",
 		"shell":    "echo $SHELL",
@@ -386,8 +386,17 @@ func (c *SSHCollector) runCommand(cmd string) (string, error) {
 	}
 	defer session.Close()
 
-	output, err := session.CombinedOutput(cmd)
+	output, err := session.CombinedOutput(wrapRemoteCommand(cmd))
 	return string(output), err
+}
+
+func wrapRemoteCommand(cmd string) string {
+	prefix := "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; LC_ALL=C; "
+	return "/bin/sh -lc '" + escapeSingleQuotes(prefix+cmd) + "'"
+}
+
+func escapeSingleQuotes(input string) string {
+	return strings.ReplaceAll(input, "'", "'\"'\"'")
 }
 
 func (c *SSHCollector) parseOS(info *collectors.SystemInfo, output string) {
