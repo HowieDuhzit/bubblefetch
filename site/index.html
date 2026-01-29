@@ -6,7 +6,7 @@
     <title>Bubblefetch - Fast, Elegant System Info</title>
     <meta
       name="description"
-      content="Bubblefetch is a fast, themeable system information tool built with Go and Bubbletea."
+      content="Fast, themeable system info tool. Single-run output (prints once, exits cleanly). 100x faster than neofetch with plugins, exports, and SSH support."
     />
     <link rel="canonical" href="https://howieduhzit.github.io/bubblefetch/" />
     <meta name="theme-color" content="#f7f3ef" />
@@ -14,7 +14,7 @@
     <meta property="og:title" content="Bubblefetch - Fast, Elegant System Info" />
     <meta
       property="og:description"
-      content="Bubblefetch is a fast, themeable system information tool built with Go and Bubbletea."
+      content="Fast, themeable system info tool built with Go and Bubbletea."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://howieduhzit.github.io/bubblefetch/" />
@@ -26,7 +26,7 @@
     <meta name="twitter:title" content="Bubblefetch - Fast, Elegant System Info" />
     <meta
       name="twitter:description"
-      content="Bubblefetch is a fast, themeable system information tool built with Go and Bubbletea."
+      content="Fast, themeable system info tool built with Go and Bubbletea."
     />
     <meta
       name="twitter:image"
@@ -164,10 +164,6 @@
       }
 
       .hero {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 36px;
-        align-items: center;
         margin-top: 50px;
         position: relative;
         z-index: 1;
@@ -177,18 +173,50 @@
         font-size: clamp(2.6rem, 5vw, 4rem);
         margin: 0 0 12px;
         line-height: 1.05;
+        text-align: center;
       }
 
-      .hero p {
+      .hero > p {
         font-size: 1.05rem;
         color: var(--ink-muted);
         margin: 0 0 22px;
+        text-align: center;
+      }
+
+      .hero-demo {
+        background: linear-gradient(140deg, #101624, #202a3d);
+        color: #f5efe6;
+        padding: 32px;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        margin: 32px 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .hero-demo {
+          background: linear-gradient(140deg, #151a26, #1f2433);
+        }
+      }
+
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+      }
+
+      .demo-item h4 {
+        margin: 0 0 12px;
+        color: var(--mint);
+        font-size: 0.95rem;
       }
 
       .hero .meta {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        justify-content: center;
+        margin: 24px 0;
       }
 
       .chip {
@@ -204,6 +232,17 @@
         .chip {
           border-color: rgba(245, 241, 234, 0.12);
         }
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: var(--mint);
+        color: #0b0f1a;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin: 0 0 12px;
       }
 
       .cta {
@@ -238,41 +277,11 @@
         }
       }
 
-      .hero-visual {
-        position: relative;
-      }
-
-      .hero-visual img {
-        width: 100%;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-      }
-
-      .badge {
-        position: absolute;
-        bottom: -18px;
-        left: 16px;
-        background: white;
-        padding: 12px 16px;
-        border-radius: 16px;
-        border: 1px solid rgba(20, 24, 35, 0.08);
-        font-weight: 600;
-        font-size: 0.9rem;
+      .cta-group {
         display: flex;
-        gap: 10px;
-        align-items: center;
-        box-shadow: var(--shadow);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .badge {
-          background: #171b25;
-          border-color: rgba(245, 241, 234, 0.12);
-        }
-      }
-
-      .badge span {
-        color: var(--accent-2);
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
       .section {
@@ -289,6 +298,46 @@
       .section p {
         margin: 0 0 24px;
         color: var(--ink-muted);
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .comparison-table {
+          background: #171b25;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 14px 18px;
+        text-align: left;
+        border-bottom: 1px solid rgba(20, 24, 35, 0.08);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .comparison-table th,
+        .comparison-table td {
+          border-bottom-color: rgba(245, 241, 234, 0.08);
+        }
+      }
+
+      .comparison-table th {
+        background: var(--cream);
+        font-weight: 700;
+      }
+
+      .comparison-table td:first-child {
+        font-weight: 600;
       }
 
       .grid {
@@ -310,6 +359,12 @@
         border-radius: 16px;
         border: 1px solid rgba(10, 12, 20, 0.06);
         box-shadow: 0 12px 30px rgba(10, 12, 20, 0.08);
+        transition: transform 0.2s;
+        cursor: pointer;
+      }
+
+      .theme-card:hover {
+        transform: translateY(-4px);
       }
 
       @media (prefers-color-scheme: dark) {
@@ -333,6 +388,11 @@
         font-size: 0.95rem;
       }
 
+      .theme-card .mono {
+        margin-top: 8px;
+        padding: 8px;
+      }
+
       .card {
         background: white;
         padding: 20px;
@@ -354,6 +414,12 @@
         font-size: 1.1rem;
       }
 
+      .card p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--ink-muted);
+      }
+
       .mono {
         font-family: "JetBrains Mono", monospace;
         font-size: 0.9rem;
@@ -362,6 +428,7 @@
         padding: 14px;
         border-radius: 14px;
         margin: 14px 0 0;
+        overflow-x: auto;
       }
 
       .split {
@@ -388,6 +455,10 @@
 
       .panel strong {
         color: var(--mint);
+      }
+
+      .panel h3 {
+        margin-top: 0;
       }
 
       footer {
@@ -434,9 +505,13 @@
           flex-wrap: wrap;
         }
 
-        .badge {
-          position: static;
-          margin-top: 12px;
+        .comparison-table {
+          font-size: 0.85rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+          padding: 10px 12px;
         }
       }
     </style>
@@ -450,10 +525,10 @@
           Bubblefetch
         </div>
         <nav class="nav">
+          <a href="#why">Why?</a>
           <a href="#features">Features</a>
           <a href="#themes">Themes</a>
           <a href="#quickstart">Quickstart</a>
-          <a href="#performance">Performance</a>
         </nav>
         <div class="header-links">
           <a href="https://github.com/howieduhzit/bubblefetch" aria-label="GitHub Repo">
@@ -484,36 +559,123 @@
       </header>
 
       <section class="hero">
-        <div>
-          <h1 class="fade-in">Fast system info with a calm, polished terminal view.</h1>
-          <p class="fade-in delay-1">
-            Bubblefetch is a Go-powered alternative to neofetch/fastfetch that
-            blends lightning-fast collection with gorgeous themed output.
+        <span class="status-badge fade-in">✨ Actively Maintained</span>
+        <h1 class="fade-in">One Command → Beautiful Output</h1>
+        <p class="fade-in delay-1">
+          Fast, themeable system info tool. Single-run output (prints once, exits cleanly).<br>
+          An alternative to neofetch/fastfetch with modern features.
+        </p>
+
+        <div class="hero-demo fade-in delay-2">
+          <div class="demo-grid">
+            <div class="demo-item">
+              <h4>Default theme</h4>
+              <div class="mono">$ bf</div>
+              <img src="images/hero-default.png" alt="Default output" style="width: 100%; margin-top: 12px; border-radius: 8px;" />
+            </div>
+            <div class="demo-item">
+              <h4>Switch themes instantly</h4>
+              <div class="mono">$ bf --theme dracula</div>
+              <img src="images/hero-dracula.png" alt="Dracula theme output" style="width: 100%; margin-top: 12px; border-radius: 8px;" />
+            </div>
+            <div class="demo-item">
+              <h4>Export as image</h4>
+              <div class="mono">$ bf -o bubblefetch.svg</div>
+            </div>
+            <div class="demo-item">
+              <h4>Fetch Solana tokens</h4>
+              <div class="mono">$ bf --sol &lt;address&gt;</div>
+            </div>
+          </div>
+          <p style="text-align: center; margin-top: 24px; color: var(--mint); font-weight: 600;">
+            Copy, paste, done. No configuration needed.
           </p>
-          <div class="hero meta fade-in delay-2">
-            <div class="chip">1.3ms average collection</div>
-            <div class="chip">Remote SSH support</div>
-            <div class="chip">Themeable UI</div>
-            <div class="chip">One-shot output</div>
-            <div class="chip">WHOIS + DNS scan</div>
-          </div>
-          <div style="margin-top: 24px" class="fade-in delay-3">
-            <a class="cta" href="https://github.com/howieduhzit/bubblefetch#readme"
-              >Read the README</a
-            >
-            <a
-              class="cta secondary"
-              href="https://buymeacoffee.com/howieduhzit"
-              >Buy me a coffee</a
-            >
-          </div>
         </div>
-        <div class="hero-visual fade-in delay-1">
-          <img src="images/Banner.webp" alt="Bubblefetch preview banner" />
-          <div class="badge">
-            <span>100x</span> faster than classic fetch tools
-          </div>
+
+        <div class="hero meta fade-in delay-2">
+          <div class="chip">~1.3ms median</div>
+          <div class="chip">Remote SSH</div>
+          <div class="chip">8 Themes</div>
+          <div class="chip">Plugin System</div>
+          <div class="chip">Image Export</div>
         </div>
+
+        <div class="cta-group fade-in delay-3">
+          <a class="cta" href="#quickstart">Get Started</a>
+          <a class="cta secondary" href="https://github.com/howieduhzit/bubblefetch#readme">Read the README</a>
+          <a class="cta secondary" href="https://buymeacoffee.com/howieduhzit">Buy me a coffee</a>
+        </div>
+      </section>
+
+      <section class="section" id="why">
+        <h2>Why Bubblefetch?</h2>
+        <p>
+          Modern features that go beyond traditional fetch tools.
+        </p>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Bubblefetch</th>
+              <th>fastfetch</th>
+              <th>neofetch</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Speed</td>
+              <td><strong>~1.3ms median</strong></td>
+              <td>~10ms</td>
+              <td>~130ms</td>
+            </tr>
+            <tr>
+              <td>Plugin System</td>
+              <td>✅ Go plugins + scripts</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>Image Exports</td>
+              <td>✅ PNG, SVG, HTML</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>Interactive Config</td>
+              <td>✅ TUI wizard</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>SSH Remote Mode</td>
+              <td>✅ Full support</td>
+              <td>⚠️ Limited</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>Domain Scan</td>
+              <td>✅ WHOIS + DNS</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>Crypto Token Info</td>
+              <td>✅ Solana tokens</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <td>Per-Module Timing</td>
+              <td>✅ costs module</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size: 0.9rem; color: var(--ink-muted);">
+          <strong>Performance methodology:</strong> ~1.3ms median collection time on local system
+          (excluding network calls) measured via <code>--benchmark</code> flag over 100 iterations.
+        </p>
       </section>
 
       <section class="section" id="features">
@@ -524,149 +686,236 @@
         </p>
         <div class="grid">
           <div class="card">
-            <h3>Modular info blocks</h3>
-            Toggle collectors in config for a custom readout.
+            <h3>🔌 Plugin System</h3>
+            <p>Go plugins or external scripts. Drop and go.</p>
+            <div class="mono">echo '{"label":"Weather","value":"72°F"}' > plugin.sh</div>
           </div>
           <div class="card">
-            <h3>External modules</h3>
-            Drop scripts in <code>plugins/external/</code> and ship instantly.
+            <h3>🖼️ Image Export</h3>
+            <p>PNG, SVG, or HTML with full theme support.</p>
+            <div class="mono">bf -o sysinfo.svg</div>
           </div>
           <div class="card">
-            <h3>Export ready</h3>
-            JSON, YAML, text, plus PNG/SVG/HTML image exports.
+            <h3>🧙 Config Wizard</h3>
+            <p>Interactive TUI setup with theme preview.</p>
+            <div class="mono">bf --config-wizard</div>
           </div>
           <div class="card">
-            <h3>Remote friendly</h3>
-            Pull stats over SSH with your existing config.
+            <h3>🌍 SSH Remote</h3>
+            <p>Pull stats over SSH with your existing config.</p>
+            <div class="mono">bf --remote user@server</div>
           </div>
           <div class="card">
-            <h3>Module cost</h3>
-            See per-module timing to keep setups fast.
+            <h3>🔎 Domain Scan</h3>
+            <p>WHOIS + DNS lookup built right in.</p>
+            <div class="mono">bf --who google.com</div>
           </div>
           <div class="card">
-            <h3>Domain scan</h3>
-            WHOIS + DNS lookup built right in.
+            <h3>🪙 Solana Tokens</h3>
+            <p>Real-time token data with price charts.</p>
+            <div class="mono">bf --sol &lt;address&gt;</div>
           </div>
           <div class="card">
-            <h3>Theme engine</h3>
-            Ship with built-in themes or add your own.
+            <h3>📤 Export Modes</h3>
+            <p>JSON, YAML, text formats.</p>
+            <div class="mono">bf --export json</div>
+          </div>
+          <div class="card">
+            <h3>📊 Benchmark</h3>
+            <p>Measure collection performance.</p>
+            <div class="mono">bf --benchmark</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="common-setups">
+        <h2>Common Setups</h2>
+        <p>Ready-to-run recipes for popular use cases.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>🪶 Minimal Laptop</h3>
+            <p>Clean output, fast, low overhead.</p>
+            <div class="mono">theme: minimal<br>modules: [os, kernel, uptime, cpu, memory, battery]</div>
+          </div>
+          <div class="card">
+            <h3>🎥 Streamer Flex</h3>
+            <p>Full specs, colorful theme, export-ready.</p>
+            <div class="mono">theme: dracula<br>bf -o ~/stream-assets/sysinfo.png</div>
+          </div>
+          <div class="card">
+            <h3>🔒 Server Audit</h3>
+            <p>No shell pipelines, read-only commands.</p>
+            <div class="mono">bf --remote prod --remote-safe --export json</div>
+          </div>
+          <div class="card">
+            <h3>🎨 Theme Author</h3>
+            <p>Test themes quickly, enable timing.</p>
+            <div class="mono">modules: [os, cpu, memory, costs]<br>bf --theme mytheme</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="themes">
+        <h2>8 Built-in Themes</h2>
+        <p>
+          Switch instantly with <code>--theme</code>. Create your own in seconds.
+        </p>
+        <div class="theme-grid">
+          <div class="theme-card">
+            <img src="images/themes/Default.png" alt="Default theme preview" />
+            <span>Default</span>
+            <div class="mono">bf --theme default</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Dracula.png" alt="Dracula theme preview" />
+            <span>Dracula</span>
+            <div class="mono">bf --theme dracula</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Nord.png" alt="Nord theme preview" />
+            <span>Nord</span>
+            <div class="mono">bf --theme nord</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Gruvbox.png" alt="Gruvbox theme preview" />
+            <span>Gruvbox</span>
+            <div class="mono">bf --theme gruvbox</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Tokyo-Night.png" alt="Tokyo Night theme preview" />
+            <span>Tokyo Night</span>
+            <div class="mono">bf --theme tokyo-night</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Solarized-Dark.png" alt="Solarized Dark theme preview" />
+            <span>Solarized Dark</span>
+            <div class="mono">bf --theme solarized-dark</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Monokai.png" alt="Monokai theme preview" />
+            <span>Monokai</span>
+            <div class="mono">bf --theme monokai</div>
+          </div>
+          <div class="theme-card">
+            <img src="images/themes/Minimal.png" alt="Minimal theme preview" />
+            <span>Minimal</span>
+            <div class="mono">bf --theme minimal</div>
           </div>
         </div>
       </section>
 
       <section class="section split" id="quickstart">
         <div>
-          <h2>Quickstart</h2>
-          <p>Clone, build, and run in under a minute.</p>
+          <h2>Get Started in 60 Seconds</h2>
           <div class="mono">
             git clone https://github.com/howieduhzit/bubblefetch.git<br />
             cd bubblefetch<br />
-            make run
+            ./install.sh
           </div>
           <div class="mono" style="margin-top: 16px">
-            bf --help
+            bf --config-wizard
           </div>
           <div class="mono" style="margin-top: 16px">
-            yay -S bubblefetch-git
+            bf
           </div>
-          <div class="mono" style="margin-top: 16px">
-            bf -o ~/Pictures/bubblefetch.svg
-          </div>
-          <div class="mono" style="margin-top: 16px">
-            bf --benchmark --format json
-          </div>
-        </div>
-        <div class="panel">
-          <h3>Configuration</h3>
-          <p>
-            Copy the sample config, then edit modules and themes to taste.
+          <p style="margin-top: 24px;">
+            <strong>Arch Linux:</strong>
           </p>
           <div class="mono">
-            cp config.example.yaml ~/.config/bubblefetch/config.yaml
+            yay -S bubblefetch-git
           </div>
+        </div>
+        <div class="panel">
+          <h3>🔒 Privacy & Safety</h3>
+          <p>
+            <strong>No network calls by default.</strong> All data stays local unless you enable:
+          </p>
+          <ul style="margin: 12px 0; padding-left: 20px;">
+            <li>Public IP detection (opt-in)</li>
+            <li>WHOIS/DNS lookups</li>
+            <li>Solana token data</li>
+            <li>SSH remote collection</li>
+          </ul>
+          <p style="margin-bottom: 0;">
+            <strong>No telemetry.</strong> No analytics. Your data is yours.
+          </p>
         </div>
       </section>
 
-      <section class="section" id="themes">
-        <h2>Style-first themes</h2>
-        <p>
-          Try curated themes like dracula, nord, or tokyo-night and ship your own
-          JSON themes in seconds.
-        </p>
+      <section class="section">
+        <h2>📤 Outputs Showcase</h2>
+        <p>Export your system info in multiple formats.</p>
         <div class="grid">
           <div class="card">
-            <h3>Run themed</h3>
-            <div class="mono">make run-dracula</div>
+            <h3>PNG Export</h3>
+            <p>Raster image, perfect for sharing.</p>
+            <div class="mono">bf --image-export png</div>
           </div>
           <div class="card">
-            <h3>Theme files</h3>
-            Drop JSON in <code>~/.config/bubblefetch/themes/</code>.
+            <h3>SVG Export</h3>
+            <p>Vector graphics, scales perfectly.</p>
+            <div class="mono">bf --image-export svg</div>
           </div>
           <div class="card">
-            <h3>Layout control</h3>
-            Define borders, padding, and ASCII art per theme.
+            <h3>HTML Export</h3>
+            <p>Standalone webpage with embedded CSS.</p>
+            <div class="mono">bf --image-export html</div>
           </div>
-        </div>
-        <div class="theme-grid">
-          <div class="theme-card">
-            <img src="images/themes/Default.png" alt="Default theme preview" />
-            <span>Default</span>
-          </div>
-          <div class="theme-card">
-            <img src="images/themes/Minimal.png" alt="Minimal theme preview" />
-            <span>Minimal</span>
-          </div>
-          <div class="theme-card">
-            <img src="images/themes/Dracula.png" alt="Dracula theme preview" />
-            <span>Dracula</span>
-          </div>
-          <div class="theme-card">
-            <img src="images/themes/Nord.png" alt="Nord theme preview" />
-            <span>Nord</span>
-          </div>
-          <div class="theme-card">
-            <img src="images/themes/Gruvbox.png" alt="Gruvbox theme preview" />
-            <span>Gruvbox</span>
-          </div>
-          <div class="theme-card">
-            <img src="images/themes/Tokyo-Night.png" alt="Tokyo Night theme preview" />
-            <span>Tokyo Night</span>
-          </div>
-          <div class="theme-card">
-            <img src="images/themes/Monokai.png" alt="Monokai theme preview" />
-            <span>Monokai</span>
-          </div>
-          <div class="theme-card">
-            <img
-              src="images/themes/Solarized-Dark.png"
-              alt="Solarized Dark theme preview"
-            />
-            <span>Solarized Dark</span>
+          <div class="card">
+            <h3>Data Exports</h3>
+            <p>JSON, YAML, or plain text.</p>
+            <div class="mono">bf --export json</div>
           </div>
         </div>
       </section>
 
-      <section class="section split" id="performance">
-        <div class="panel">
-          <h3>Benchmark mode</h3>
-          <p>
-            Run local performance tests to verify collection time.
-          </p>
-          <div class="mono">make bench</div>
+      <section class="section">
+        <h2>🔧 Troubleshooting</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Nerd Font Icons?</h3>
+            <p>Install a Nerd Font and configure your terminal to use it.</p>
+          </div>
+          <div class="card">
+            <h3>Platform Support</h3>
+            <p>✅ Linux | ✅ macOS (no .so plugins) | ✅ FreeBSD | ❌ Windows</p>
+          </div>
+          <div class="card">
+            <h3>SSH Not Working?</h3>
+            <p>Test manual SSH first. Use <code>--remote-safe</code> on production.</p>
+          </div>
+          <div class="card">
+            <h3>Plugin Not Loading?</h3>
+            <p>Check: correct directory, executable, valid JSON output, in modules list.</p>
+          </div>
         </div>
-        <div>
-          <h2>Built for speed</h2>
+      </section>
+
+      <section class="section split">
+        <div class="panel">
+          <h3>Built for speed</h3>
           <p>
-            Bubblefetch averages around <strong>1.3ms</strong> collection time,
+            Bubblefetch averages around <strong>~1.3ms median</strong> collection time,
             keeping your terminal prompt fast even with full module sets.
           </p>
-          <div class="mono">./bubblefetch --benchmark</div>
+          <div class="mono">bf --benchmark</div>
+        </div>
+        <div class="panel">
+          <h3>Open source & actively maintained</h3>
+          <p>
+            Built with Go, Bubbletea, and Lipgloss. We're looking for theme and plugin contributions!
+          </p>
+          <div class="mono">
+            <a href="https://github.com/howieduhzit/bubblefetch" style="color: var(--mint);">
+              github.com/howieduhzit/bubblefetch
+            </a>
+          </div>
         </div>
       </section>
 
       <footer>
-        Built with Go, Bubbletea, and a love for clean terminals.
-        <div class="header-links" style="justify-content: center; margin-top: 10px">
+        Made with ❤️ by the Bubblefetch community
+        <div class="header-links" style="justify-content: center; margin-top: 14px">
           <a href="https://github.com/howieduhzit/bubblefetch" aria-label="GitHub Repo">
             <img
               class="site-icon"
@@ -692,6 +941,11 @@
             />
           </a>
         </div>
+        <p style="margin-top: 16px;">
+          <a href="https://github.com/howieduhzit/bubblefetch/stargazers" style="color: var(--accent);">
+            ⭐ Star us on GitHub!
+          </a>
+        </p>
       </footer>
     </div>
   </body>

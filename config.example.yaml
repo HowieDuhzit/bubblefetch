@@ -38,6 +38,12 @@ plugin_dir: ""
 # External module timeout (ms)
 external_module_timeout_ms: 250
 
+# Bags.fm API integration (optional)
+# Provides enhanced Solana token data: creator info, launch date, lifetime fees
+# Get your API key at: https://dev.bags.fm
+# Leave empty to use only DexScreener data (still works fine)
+bags_api_key: ""
+
 # SSH configuration for remote systems
 ssh:
   user: ""           # SSH username (defaults to current user)

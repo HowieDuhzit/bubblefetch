@@ -1,0 +1,32 @@
+# Streamer Flex Setup
+# Full specs, colorful theme, export-ready
+# Perfect for: Content creators, streamers, showing off your rig
+
+theme: dracula
+
+modules:
+  - os
+  - kernel
+  - host
+  - uptime
+  - cpu
+  - gpu
+  - memory
+  - disk
+  - network
+  - localip
+  # - publicip  # Uncomment if you want to show public IP
+
+# SSH configuration (if streaming from remote)
+ssh:
+  user: ""
+  key_path: ""
+
+# Plugin directory for custom modules
+plugin_dir: ~/.config/bubblefetch/plugins
+
+# Disable public IP by default for privacy
+enable_public_ip: false
+
+# External module timeout (milliseconds)
+external_module_timeout_ms: 250

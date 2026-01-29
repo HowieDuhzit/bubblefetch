@@ -17,6 +17,7 @@ import (
 	"github.com/howieduhzit/bubblefetch/internal/config"
 	"github.com/howieduhzit/bubblefetch/internal/export"
 	"github.com/howieduhzit/bubblefetch/internal/plugins"
+	"github.com/howieduhzit/bubblefetch/internal/solana"
 	"github.com/howieduhzit/bubblefetch/internal/ui"
 	"github.com/howieduhzit/bubblefetch/internal/ui/config_wizard"
 	"github.com/howieduhzit/bubblefetch/internal/ui/modules"
@@ -51,12 +52,14 @@ var (
 	whoisTargetS     = flag.String("W", "", "Alias for --who")
 	whoisRaw         = flag.Bool("who-raw", false, "Include raw WHOIS output")
 	whoisRawS        = flag.Bool("R", false, "Alias for --who-raw")
+	solAddress       = flag.String("sol", "", "Fetch Solana token data by contract address")
+	solAddressS      = flag.String("s", "", "Alias for --sol")
 	remoteSafe       = flag.Bool("remote-safe", false, "Use read-only SSH commands (no shell pipelines)")
 	helpFlag         = flag.Bool("help", false, "Show help message")
 	helpFlagS        = flag.Bool("h", false, "Alias for --help")
 )
 
-const Version = "0.3.0"
+const Version = "0.3.1"
 const whoisValueMaxWidth = 72
 
 func main() {
@@ -76,6 +79,7 @@ Options:
   -o, --image-output string   Image output path (default: bubblefetch.{format})
   -W, --who string            Domain scan (WHOIS + DNS records)
   -R, --who-raw               Include raw WHOIS output
+  -s, --sol string            Fetch Solana token data by contract address
   --remote-safe               Use read-only SSH commands (no shell pipelines)
   -v, --version               Print version information
   -h, --help                  Show help message
@@ -111,6 +115,11 @@ Notes:
 
 	if *whoisTarget != "" {
 		runWhois(*whoisTarget, *whoisRaw)
+		return
+	}
+
+	if *solAddress != "" {
+		runSolana(*solAddress)
 		return
 	}
 
@@ -191,6 +200,9 @@ func normalizeFlags() {
 	}
 	if *whoisRawS && !*whoisRaw {
 		*whoisRaw = true
+	}
+	if *solAddressS != "" && *solAddress == "" {
+		*solAddress = *solAddressS
 	}
 	if *benchmarkS && !*benchmark {
 		*benchmark = true
@@ -427,6 +439,65 @@ func runWhois(target string, includeRaw bool) {
 	}
 
 	fmt.Println(formatWhois(result, thm))
+}
+
+func runSolana(address string) {
+	// Load configuration for theme
+	cfg, _ := config.Load(*configPath)
+	if cfg == nil {
+		cfg = config.NewDefault()
+	}
+	if *themeName != "" {
+		cfg.Theme = *themeName
+	}
+
+	// Check if we're in export mode
+	if *exportFmt != "" {
+		// Fetch token info with optional Bags.fm API key
+		info, err := solana.FetchTokenInfoWithAPIKey(address, cfg.BagsAPIKey)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error fetching Solana token data: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Export in requested format
+		var output string
+		switch *exportFmt {
+		case "json":
+			output, err = solana.DisplayJSON(info)
+		case "yaml":
+			output, err = solana.DisplayYAML(info)
+		case "text":
+			output, err = solana.Display(info, cfg.Theme)
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown export format: %s (use json, yaml, or text)\n", *exportFmt)
+			os.Exit(1)
+		}
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error formatting output: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Print(output)
+		return
+	}
+
+	// Fetch token info with optional Bags.fm API key
+	info, err := solana.FetchTokenInfoWithAPIKey(address, cfg.BagsAPIKey)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error fetching Solana token data: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Display with theme
+	output, err := solana.Display(info, cfg.Theme)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error displaying token data: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println(output)
 }
 
 func formatWhois(result whois.Result, thm *theme.Theme) string {

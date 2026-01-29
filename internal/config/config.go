@@ -16,6 +16,7 @@ type Config struct {
 	EnablePublicIP          bool      `yaml:"enable_public_ip"`
 	PluginDir               string    `yaml:"plugin_dir"`
 	ExternalModuleTimeoutMS int       `yaml:"external_module_timeout_ms"`
+	BagsAPIKey              string    `yaml:"bags_api_key"` // Optional Bags.fm API key for enhanced Solana token data
 }
 
 type SSHConfig struct {

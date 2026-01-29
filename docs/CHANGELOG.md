@@ -2,6 +2,48 @@
 
 All notable changes to bubblefetch will be documented in this file.
 
+## [0.3.1] - 2026-01-28
+
+### Added
+- **Solana Token Info**: New `--sol` flag to fetch and display Solana token data
+  - Fetch token metadata from Solana blockchain via RPC
+  - Display token name, symbol, decimals, supply, and market data
+  - Real-time price charts based on 24h price changes
+  - Market data integration from DexScreener API (price, market cap)
+  - **Bags.fm API Integration**: Enhanced data for tokens launched via Bags.fm
+    - Optional API key configuration via `bags_api_key` in config
+    - Creator information (username and platform)
+    - Launch date tracking
+    - Total lifetime fees collected
+    - Graceful fallback to DexScreener-only data
+    - Get your API key at [dev.bags.fm](https://dev.bags.fm)
+  - Token logo fetching and ASCII art conversion
+  - Support for themed display using lipgloss styles
+  - Export to JSON, YAML, or themed text format
+  - Short flag: `-s <contract_address>`
+  - Example: `bubblefetch --sol EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`
+
+### Documentation
+- **Major Documentation Overhaul**: Complete restructure of README and documentation
+  - Added hero demo section with "1 command → 1 result" examples
+  - Added "Why Bubblefetch" comparison table vs fastfetch/neofetch
+  - Added "Common Setups" with ready-to-run recipes
+  - Added privacy & safety section with clear default behaviors
+  - Added troubleshooting FAQ for common issues
+  - Added theme gallery with preview links and download buttons
+  - Added outputs showcase section for exports
+  - Unified performance number to ~1.3ms median (was inconsistent)
+  - Improved wording consistency throughout
+  - Added project status badge (actively maintained)
+
+### Technical
+- New package: `internal/solana` for token fetching and display
+- Image-to-ASCII conversion for token logos
+- Price chart generation from DexScreener API data
+- 5-second timeout for Solana RPC requests
+- Fallback to multiple data sources for market information
+- Large number formatting (K/M/B/T suffixes)
+
 ## [0.3.0] - 2026-01-18
 
 ### Major Features

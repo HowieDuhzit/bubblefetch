@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        .background { fill: #1e1e2e; }
+        .border { fill: none; stroke: #585b70; stroke-width: 2; }
+        .ascii { fill: #89b4fa; font-family: monospace; font-size: 14px; }
+        .label { fill: #f9e2af; font-family: monospace; font-size: 14px; font-weight: bold; }
+        .value { fill: #a6e3a1; font-family: monospace; font-size: 14px; }
+    </style>
+
+    <!-- Background -->
+    <rect class="background" width="800" height="600" />
+
+    
+    <!-- Border -->
+    <rect class="border" x="20" y="20" width="760" height="560" rx="10" />
+    
+
+    <!-- ASCII Art -->
+    
+    <text class="ascii" x="40" y="80" xml:space="preserve"></text>
+    
+    <text class="ascii" x="40" y="100" xml:space="preserve">              %</text>
+    
+    <text class="ascii" x="40" y="120" xml:space="preserve">             #@#</text>
+    
+    <text class="ascii" x="40" y="140" xml:space="preserve">            =@@@+</text>
+    
+    <text class="ascii" x="40" y="160" xml:space="preserve">           :@@@@@=</text>
+    
+    <text class="ascii" x="40" y="180" xml:space="preserve">          .=@@@@@@-</text>
+    
+    <text class="ascii" x="40" y="200" xml:space="preserve">         .@@%*@@@@@-</text>
+    
+    <text class="ascii" x="40" y="220" xml:space="preserve">        :@@@@@@@@@@@-</text>
+    
+    <text class="ascii" x="40" y="240" xml:space="preserve">       :@@@@@@@@@@@@@-</text>
+    
+    <text class="ascii" x="40" y="260" xml:space="preserve">      -@@@@@@*=*@@@@@@=</text>
+    
+    <text class="ascii" x="40" y="280" xml:space="preserve">     =@@@@@@     @@@@@@+</text>
+    
+    <text class="ascii" x="40" y="300" xml:space="preserve">    +@@@@@@-     :@@@@%@*</text>
+    
+    <text class="ascii" x="40" y="320" xml:space="preserve">   *@@@@@@@-     :@@@@@@*.</text>
+    
+    <text class="ascii" x="40" y="340" xml:space="preserve">  #@@@@*-.         .-*@@@@% ..</text>
+    
+    <text class="ascii" x="40" y="360" xml:space="preserve"> @@+.                   .+@@</text>
+    
+    <text class="ascii" x="40" y="380" xml:space="preserve">:                           :</text>
+    
+
+    <!-- System Info -->
+    
+    <text class="label" x="350" y="80">ó°¹ OS </text>
+    <text class="value" x="430" y="80">arch</text>
+    
+    <text class="label" x="350" y="105">ó°£ Kernel </text>
+    <text class="value" x="462" y="105">6.18.3-arch1-1</text>
+    
+    <text class="label" x="350" y="130">ó° Host </text>
+    <text class="value" x="430" y="130">Duhzicon</text>
+    
+    <text class="label" x="350" y="155">ó°¥ Uptime </text>
+    <text class="value" x="462" y="155">23h 37m</text>
+    
+    <text class="label" x="350" y="180">ó°»  CPU </text>
+    <text class="value" x="454" y="180">13th Gen Intel(R) Core(TM) i9-13900KF</text>
+    
+    <text class="label" x="350" y="205">ó°¢® GPU </text>
+    <text class="value" x="454" y="205">NVIDIA GPU (2489)</text>
+    
+    <text class="label" x="350" y="230">ó° Memory </text>
+    <text class="value" x="446" y="230">43.8 GiB / 94.1 GiB</text>
+    
+    <text class="label" x="350" y="255">ó° Disk </text>
+    <text class="value" x="430" y="255">548.3 GiB / 930.5 GiB</text>
+    
+    <text class="label" x="350" y="280">ó° Shell </text>
+    <text class="value" x="438" y="280">/bin/zsh</text>
+    
+    <text class="label" x="350" y="305">ó° Terminal </text>
+    <text class="value" x="462" y="305">tmux-256color</text>
+    
+    <text class="label" x="350" y="330">ó°§¨ DE </text>
+    <text class="value" x="446" y="330">Hyprland</text>
+    
+    <text class="label" x="350" y="355">ó°¯ WM </text>
+    <text class="value" x="430" y="355">wayland</text>
+    
+    <text class="label" x="350" y="380">î¥ Git </text>
+    <text class="value" x="422" y="380">Branch: main Â· dirty Â· â0 â0
+  Root: /home/howie/Documents/bubblefetch</text>
+    
+</svg>

@@ -1,0 +1,28 @@
+# Theme Author Starter
+# Test themes quickly, enable timing
+# Perfect for: Theme developers, contributors
+
+theme: default  # Change this to test different themes
+
+modules:
+  - os
+  - kernel
+  - cpu
+  - memory
+  - disk
+  - costs  # Shows per-module timing - useful for performance testing
+
+# Quick theme testing workflow:
+# 1. Edit your theme file in ~/.config/bubblefetch/themes/mytheme.json
+# 2. Run: bf --theme mytheme
+# 3. Check timing with costs module
+# 4. Export for preview: bf --theme mytheme -o preview.png
+
+# Disable network calls for faster iteration
+enable_public_ip: false
+
+# Plugin directory (if testing custom modules)
+plugin_dir: ~/.config/bubblefetch/plugins
+
+# Timeout for external modules
+external_module_timeout_ms: 250

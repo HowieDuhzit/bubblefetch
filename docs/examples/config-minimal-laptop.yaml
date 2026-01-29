@@ -1,0 +1,19 @@
+# Minimal Laptop Setup
+# Clean output, fast, low overhead
+# Perfect for: Laptops, low-spec machines, minimalists
+
+theme: minimal
+
+modules:
+  - os
+  - kernel
+  - uptime
+  - cpu
+  - memory
+  - battery
+
+# Optional: Disable public IP for faster startup
+enable_public_ip: false
+
+# Plugin directory (optional)
+# plugin_dir: ~/.config/bubblefetch/plugins
